@@ -1,0 +1,26 @@
+{
+    "name": "FencingDifferent",
+    "version": "1.0.0",
+    "description": "Server nodejs per capolavoro 2023-2024 Strazzullo Pedicini",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node main.js"
+    },
+    "author": "Ciro Andrea Strazzullo & Mattia Graziano Pedizini",
+    "license": "ISC",
+    "dependencies": {
+        "body-parser": "^1.20.2",
+        "cors": "^2.8.5",
+        "express": "^4.18.3",
+        "fs": "^0.0.1-security",
+        "http": "^0.0.1-security",
+        "https": "^1.0.0",
+        "mysql": "^2.18.1",
+        "mysql2": "^3.9.2",
+        "nodemailer": "^6.9.13",
+        "path": "^0.12.7",
+        "pm2": "^5.3.1",
+        "shortid": "^2.2.16"
+    }
+}
