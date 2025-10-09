@@ -1,26 +1,22 @@
 //Import moduli
-import { creaClassificaGironi } from "./render.js";
+import { renderGironi } from "./render.js";
 import { recuperaTornei, loginControllo } from "./cache.js";
+
 //Lettura url
 const url = new URL(window.location.href);
 const idParam = url.searchParams.get("nomeTorneo");
 const dataParam = url.searchParams.get("data");
 const svolto = url.searchParams.get("svolto");
+const idParamTorneo = url.searchParams.get("id");
 
 //Dom - button
+const classificaIniziale = document.getElementById("classificaIniziale");
 const eliminazioneDiretta = document.getElementById("eliminazioneDiretta");
 const gironiMenu = document.getElementById("gironiMenu");
-const classificaIniziale = document.getElementById("classificaIniziale");
 const classificaGironi = document.getElementById("classificaGironi");
 const classificaFinale = document.getElementById("classificaFinale");
-const logout = document.getElementById("logout");
-logout.onclick = () => {
-  sessionStorage.removeItem("username");
-  sessionStorage.removeItem("password");
-  window.location.href = "../login.html";
-};
 /**
- * Al caricamento della pagina viene fatto il render della classifica gironi
+ * Al caricamento della pagina viene fatto il render dei gironi
  */
 window.onload = () => {
   loginControllo(
@@ -29,13 +25,13 @@ window.onload = () => {
   );
   recuperaTornei().then((response) => {
     response.forEach((torneo) => {
-      if (torneo.nome === idParam && torneo.data === dataParam) {
-        const { percentualeEliminazione, nGironi } = torneo;
-        creaClassificaGironi(
+      if (torneo.Id == idParamTorneo) {
+        renderGironi(
           idParam,
           dataParam,
-          percentualeEliminazione,
-          nGironi
+          torneo.NumeroGironi,
+          svolto,
+          idParamTorneo
         );
       }
     });
@@ -43,11 +39,13 @@ window.onload = () => {
 };
 
 /**
- * Gestione button cambio pagina da classifica gironi a classifica iniziale
+ * Gestione button cambio pagina dai gironi a classifica iniziale
  */
 classificaIniziale.onclick = () => {
   window.location.href =
-    "./classificaIniziale.html?nomeTorneo=" +
+    "./classificaIniziale.html?id=" +
+    idParamTorneo +
+    "&nomeTorneo=" +
     idParam +
     "&data=" +
     dataParam +
@@ -56,11 +54,13 @@ classificaIniziale.onclick = () => {
 };
 
 /**
- * Gestione button cambio pagina da classifica gironi a pagina dei gironi
+ * Gestione button cambio pagina dai gironi a se stessa
  */
 gironiMenu.onclick = () => {
   window.location.href =
-    "./gironi.html?nomeTorneo=" +
+    "./gironi.html?id=" +
+    idParamTorneo +
+    "&nomeTorneo=" +
     idParam +
     "&data=" +
     dataParam +
@@ -69,27 +69,29 @@ gironiMenu.onclick = () => {
 };
 
 /**
- * Gestione button cambio pagina da classifica gironi a pagina eliminazione diretta
+ * Gestione button cambio pagina da gironi a pagina classifica gironi
+ */
+classificaGironi.onclick = () => {
+  window.location.href =
+    "./classificaGironi.html?id=" +
+    idParamTorneo +
+    "&nomeTorneo=" +
+    idParam +
+    "&data=" +
+    dataParam +
+    "&svolto=" +
+    svolto;
+};
+
+/**
+ * Gestione button cambio pagina dai gironi a eliminazione diretta
  */
 eliminazioneDiretta.onclick = () => {
   console.log("Non implementata");
 };
 
 /**
- * Gestione button cambio pagina da classifica gironi a se stessa
- */
-classificaGironi.onclick = () => {
-  window.location.href =
-    "./classificaGironi.html?nomeTorneo=" +
-    idParam +
-    "&data=" +
-    dataParam +
-    "&svolto=" +
-    svolto;
-};
-
-/**
- * Gestione button cambio pagina da classifica gironi a classifica finale
+ * Gestione button cambio pagina da gironi a classifica finale
  */
 classificaFinale.onclick = () => {
   console.log("Non implementata");

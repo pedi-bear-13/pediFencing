@@ -9,8 +9,10 @@
     />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="../src/index.css" />
-    <title>classifica iniziale</title>
+
+    <title>Admin</title>
   </head>
+
   <body>
     <div
       class="d-flex justify-content-center align-items-center d-none"
@@ -24,15 +26,17 @@
       ></div>
     </div>
     <div class="container" id="data">
-      <nav class="navbar designInput rounded-4 mt-3">
+      <nav class="navbar navbar-expand-lg designInput rounded-4 mt-3">
         <div class="container-fluid">
+          <a class="navbar-brand fs-3 fw-bold text-white" href="#">
+            <img src="../Logo.png" class="pedi-immagine-barra" />
+            Fencing Different
+          </a>
           <div class="d-flex">
-            <a class="navbar-brand fs-3 fw-bold text-white" href="#">
-              <img src="../Logo.png" class="pedi-immagine-barra" />
-              Fencing Different
-            </a>
-            <button class="bottoni-barra" type="button" id="backIn">
-              <img src="../arrow_back.svg" class="pedi-icon" />
+            <button class="bottoni-barra" type="button">
+              <a href="./index.html">
+                <img src="../arrow_back.svg" class="pedi-icon" />
+              </a>
             </button>
             <button class="bottoni-barra" type="button">
               <a id="logout">
@@ -42,31 +46,23 @@
           </div>
         </div>
       </nav>
-      <div class="row justify-content-center">
+      <div class="row justify-content-center mt-5">
         <div class="col-auto">
-          <h1 class="h1 fs-1 fw-bold text-white mt-5">Aggiungi Partecipante</h1>
+          <h1 class="h1 fs-1 fw-bold text-white">MODIFICA IL TORNEO</h1>
         </div>
       </div>
-
       <div class="card card-body pedi-card-page rounded-4 mt-5">
         <form onsubmit="return false">
           <div class="row mt-4">
             <div class="col">
-              <input
-                type="text"
-                id="nome"
-                placeholder="Inserisci il nome"
-                class="form-control"
-                required
-              />
+              <input type="date" id="dataTorneo" class="form-control" />
             </div>
             <div class="col">
               <input
                 type="text"
-                id="cognome"
-                placeholder="Inserisci il cognome"
+                id="nome"
                 class="form-control"
-                required
+                placeholder="Nome"
               />
             </div>
           </div>
@@ -74,25 +70,23 @@
             <div class="col">
               <input
                 type="number"
-                id="ranking"
-                placeholder="Inserisci il ranking"
+                id="pel"
                 class="form-control"
-                required
+                placeholder="% eliminazione"
               />
             </div>
             <div class="col">
               <input
                 type="number"
-                id="codiceFis"
-                placeholder="Inserisci il codice fis"
+                id="ngir"
                 class="form-control"
-                required
+                placeholder="Numero gironi"
               />
             </div>
-            <div class="row justify-content-center mt-5">
-              <div class="col-auto mt-5">
-                <p class="text-light" id="messaggio"></p>
-              </div>
+          </div>
+          <div class="row justify-content-center mt-5 text-light">
+            <div class="col-auto">
+              <p id="messaggio"></p>
             </div>
           </div>
           <div class="row justify-content-end mt-4">
@@ -101,13 +95,13 @@
                 type="submit"
                 id="invia"
                 class="inputInvia rounded-4"
-                value="Invio"
+                value="Modifica"
               />
             </div>
           </div>
         </form>
       </div>
     </div>
-    <script src="./src/assegnaTorneo.js" type="module"></script>
+    <script src="./src/modificaTorneo.js" type="module"></script>
   </body>
 </html>
