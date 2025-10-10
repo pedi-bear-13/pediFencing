@@ -8,7 +8,7 @@ body {
   width: 80px;
 }
 
-.spinner{
+.spinner {
   color: #db2777;
 }
 .pedi-card {
@@ -117,4 +117,24 @@ body {
 .bottoni-rosa {
   background-color: #db2777;
   border-color: #f5d0fe;
+}
+
+/* Piccole regole per la dropdown dei risultati (mantengono lo stile scuro) */
+#searchResults {
+  z-index: 1100;
+  max-height: 220px;
+  overflow-y: auto;
+}
+#searchResults .list-group-item {
+  background-color: #0f172a;
+  border: none;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+#searchResults .list-group-item:hover {
+  background-color: rgba(219, 39, 119, 0.12);
+}
+.btn-close-white {
+  filter: invert(100%);
+  opacity: 0.9;
 }

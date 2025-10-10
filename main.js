@@ -11,6 +11,7 @@ const conf = JSON.parse(fs.readFileSync("conf.json"));
 const accessLogin = require("./services/accessLogin.js");
 const recuperaTornei = require("./services/recuperaTornei");
 const recuperaAtleti = require("./services/recuperaAtleti");
+const recuperaTuttiAtleti = require("./services/recuperaTuttiAtleti");
 const aggiornaAssalti = require("./services/aggiornaAssalti.js");
 const creaTorneo = require("./services/creaTorneo.js");
 const eliminaTorneo = require("./services/eliminaTorneo.js");
@@ -65,6 +66,19 @@ const recuperaAssaltiGirone = require("./services/recuperaAssaltiGirone.js");
       response.status(500).json({ error: error.message });
     }
   });
+
+  /**
+   * Funzione per recuperare gli atleti di un torneo
+   */
+  app.post("/scherma/recuperaTuttiAtleti", async (request, response) => {
+    try {
+      const result = await recuperaTuttiAtleti();
+      response.json({ response: result });
+    } catch (error) {
+      response.status(500).json({ error: error.message });
+    }
+  });
+
   /**
    * Funzione per recuperare i tornei salvati sul server
    */

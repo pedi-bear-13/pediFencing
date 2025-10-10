@@ -33,6 +33,27 @@ export const recuperaAtleta = (nometorneo, data) => {
   });
 };
 
+/**
+ * Funzione di fetching per recuperare gli atleti salvati su database mysql usando il servizio nodejs apposito
+ * @returns promise
+ */
+export const recuperaTuttiAtleti = () => {
+  return new Promise((resolve, reject) => {
+    fetch("/scherma/recuperaTuttiAtleti", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({}),
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        resolve(response.response);
+      })
+      .catch((error) => reject(error));
+  });
+};
+
 export const creaTorneo = (dizionario) => {
   return new Promise((resolve, reject) => {
     fetch("/scherma/creaTorneo", {

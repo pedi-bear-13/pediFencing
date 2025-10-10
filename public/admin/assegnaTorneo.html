@@ -50,6 +50,34 @@
 
       <div class="card card-body pedi-card-page rounded-4 mt-5">
         <form onsubmit="return false">
+          <!-- Barra di ricerca + pulsante + -->
+          <div class="row mt-3">
+            <div class="col-12 position-relative">
+              <div class="input-group">
+                <input
+                  id="searchAtleta"
+                  type="text"
+                  class="form-control"
+                  placeholder="Cerca atleta per nome e cognome"
+                  autocomplete="off"
+                />
+                <button
+                  class="btn bottoni-rosa"
+                  type="button"
+                  id="btnAddNew"
+                  title="Aggiungi nuovo atleta"
+                >
+                  <strong>+</strong>
+                </button>
+              </div>
+              <div
+                id="searchResults"
+                class="list-group d-none mt-1 w-100"
+              ></div>
+            </div>
+          </div>
+
+          <!-- campi nome/cognome/ranking/codice (come prima) -->
           <div class="row mt-4">
             <div class="col">
               <input
@@ -108,6 +136,83 @@
         </form>
       </div>
     </div>
+
+    <!-- Modal per creare nuovo atleta -->
+    <div
+      class="modal fade"
+      id="modalNewAtleta"
+      tabindex="-1"
+      aria-labelledby="modalNewAtletaLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content pedi-card-page text-white">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalNewAtletaLabel">Nuovo Atleta</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="formNewAtleta" onsubmit="return false">
+              <div class="mb-3">
+                <input
+                  type="text"
+                  id="nomeNew"
+                  placeholder="Nome"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <input
+                  type="text"
+                  id="cognomeNew"
+                  placeholder="Cognome"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <input
+                  type="number"
+                  id="rankingNew"
+                  placeholder="Ranking"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <input
+                  type="number"
+                  id="codiceFisNew"
+                  placeholder="Codice FIS"
+                  class="form-control"
+                  required
+                />
+              </div>
+            </form>
+            <div id="modalMessage" class="small"></div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn bottoni-barra"
+              data-bs-dismiss="modal"
+            >
+              Annulla
+            </button>
+            <button type="button" class="btn bottoni-rosa" id="saveNewAtleta">
+              Crea
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="./src/assegnaTorneo.js" type="module"></script>
   </body>
 </html>
