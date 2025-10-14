@@ -1,10 +1,14 @@
 const fs = require("fs");
 const mysql = require("mysql2/promise");
+
 /**
- * Modulo contenente la funzione per recuperare gli atleti da db
- * @param {*} nomeTorneo
- * @param {*} data
- * @returns
+ * Recupera tutti gli atleti iscritti ad un torneo
+ * utilizzando il RankingUsato salvato in 'partecipare'
+ * (rinominato come 'Ranking' per compatibilità con il codice esistente)
+ *
+ * @param {string} nomeTorneo
+ * @param {string} data
+ * @returns {Array} Lista atleti con Ranking "freezato" per il torneo
  */
 const recuperaAtleti = async (nomeTorneo, data) => {
   try {
@@ -15,27 +19,23 @@ const recuperaAtleti = async (nomeTorneo, data) => {
       password: conf.password,
       database: conf.database,
     });
-    const [rows, fields] = await connection.execute(
-      "SELECT DISTINCT atleta.* " +
-        "FROM partecipare " +
-        "INNER JOIN atleta ON partecipare.CodiceFIS = atleta.CodiceFIS " +
-        "INNER JOIN torneo ON partecipare.IdTorneo = torneo.Id " +
-        "WHERE torneo.Nome = '" +
-        nomeTorneo +
-        "' " +
-        "AND torneo.Giorno = '" +
-        data +
-        "'"
+
+    const [rows] = await connection.execute(
+      `SELECT DISTINCT atleta.CodiceFIS,
+              atleta.Nome,
+              atleta.Cognome,
+              partecipare.RankingUsato AS Ranking
+       FROM partecipare
+       INNER JOIN atleta ON partecipare.CodiceFIS = atleta.CodiceFIS
+       INNER JOIN torneo ON partecipare.IdTorneo = torneo.Id
+       WHERE torneo.Nome = ? AND torneo.Giorno = ?`,
+      [nomeTorneo, data]
     );
 
     await connection.end();
-    if (rows.length > 0) {
-      return rows;
-    } else {
-      return [];
-    }
+    return rows.length > 0 ? rows : [];
   } catch (error) {
-    console.log(error);
+    console.error("Errore nel recupero atleti:", error);
     throw new Error(error.message);
   }
 };
