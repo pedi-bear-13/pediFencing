@@ -18,6 +18,8 @@ const eliminaTorneo = require("./services/eliminaTorneo.js");
 const modificaTorneo = require("./services/modificaTorneo.js");
 const registraPartecipante = require("./services/registraPartecipante.js");
 const recuperaAssaltiGirone = require("./services/recuperaAssaltiGirone.js");
+const assegnaGironi = require("./services/assegnaGironi");
+const recuperaGironi = require("./services/recuperaGironi");
 
 (() => {
   //gestione cors
@@ -129,6 +131,40 @@ const recuperaAssaltiGirone = require("./services/recuperaAssaltiGirone.js");
       console.error("Errore recuperaAssaltiGirone:", error);
       res.status(500).json({ error: error.message });
     }
+  });
+
+  // Assegna gironi a un torneo
+  app.post("/scherma/assegnaGironi", async (request, response) => {
+    const username = request.headers.username;
+    const password = request.headers.password;
+
+    await checkLogin(username, password)
+      .then(async () => {
+        const { idTorneo, assegnazioni } = request.body;
+
+        const rsp = await assegnaGironi(idTorneo, assegnazioni);
+        response.json(rsp);
+      })
+      .catch(() => {
+        response.status(401).json({ result: "Unauthorized" });
+      });
+  });
+
+  // Recupera lista atleti e gironi
+  app.post("/scherma/recuperaGironi", async (request, response) => {
+    const username = request.headers.username;
+    const password = request.headers.password;
+
+    await checkLogin(username, password)
+      .then(async () => {
+        const { nomeTorneo, dataTorneo } = request.body;
+
+        const rsp = await recuperaGironi(nomeTorneo, dataTorneo);
+        response.json(rsp);
+      })
+      .catch(() => {
+        response.status(401).json({ result: "Unauthorized" });
+      });
   });
 
   app.post("/scherma/registraPartecipante", async (request, response) => {

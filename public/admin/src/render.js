@@ -2,7 +2,7 @@
 import {
   recuperaTornei,
   recuperaAtleta,
-  //recuperaGironi,
+  assegnaGironi,
   //iscriviUtenteReg,
   //recuperaStorico,
   aggiornaAssalti,
@@ -275,10 +275,10 @@ export const renderGironi = (nomeTorneo, dataT, numeroGir, stato, idTorneo) => {
       data.classList.remove("d-none");
       spinner.classList.add("d-none");
       const partecipantiRedux = response.sort((a, b) => a.Ranking - b.Ranking);
-      console.log(assaltiGironi);
       let countaGir = 0;
       distribuisciGiocatori(numeroGir, partecipantiRedux).forEach(
         (giocatoriDistribuiti) => {
+          let assegnazioni = [];
           // giocatoriDistribuiti è già un array di atleti del singolo girone
           let html = `
     <div class="col-auto">
@@ -295,6 +295,10 @@ export const renderGironi = (nomeTorneo, dataT, numeroGir, stato, idTorneo) => {
           html += `</tr></thead><tbody>`;
           // righe giocatori
           giocatoriDistribuiti.forEach((partecipante, index) => {
+            assegnazioni.push({
+              CodiceFIS: partecipante.CodiceFIS,
+              Girone: countaGir + 1,
+            });
             html += `
     <tr>
       <td>${partecipante.Cognome}</td>
@@ -334,6 +338,7 @@ export const renderGironi = (nomeTorneo, dataT, numeroGir, stato, idTorneo) => {
 
           html += "</tbody></table></div>";
           countaGir++;
+          assegnaGironi({ idTorneo, assegnazioni });
           html += creaModalGironi(giocatoriDistribuiti, countaGir, stato);
           html += renderincontri(giocatoriDistribuiti);
           tableGironi.innerHTML += html;

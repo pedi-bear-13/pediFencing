@@ -250,3 +250,24 @@ export const recuperaAssaltiGirone = async (idTorneo) => {
       return [];
     });
 };
+
+/**
+ * Servizio per assegnare un girone ad un atleta
+ * @param {Object} dizionario - deve contenere: { codiceFIS, idTorneo, girone }
+ */
+export const assegnaGironi = (dizionario) => {
+  return new Promise((resolve, reject) => {
+    fetch("/scherma/assegnaGironi", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        username: sessionStorage.getItem("username"),
+        password: sessionStorage.getItem("password"),
+      },
+      body: JSON.stringify(dizionario),
+    })
+      .then((response) => response.json())
+      .then((response) => resolve(response.result))
+      .catch((error) => reject(error));
+  });
+};

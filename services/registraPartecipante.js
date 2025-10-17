@@ -6,7 +6,7 @@ const mysql = require("mysql2/promise");
  * - Verifica che il torneo esista (Nome + Giorno).
  * - Se l'atleta non esiste lo crea, altrimenti aggiorna i suoi dati.
  * - Controlla se è già iscritto al torneo.
- * - Se non iscritto, inserisce nella tabella Partecipare con il ranking usato.
+ * - Se non iscritto, inserisce nella tabella Partecipare con il ranking usato e Girone=0.
  *
  * @param {*} nome
  * @param {*} cognome
@@ -65,9 +65,9 @@ const registraPartecipante = async (
       return { result: "Atleta già registrato a questo torneo" };
     }
 
-    // 4. Inserisco iscrizione con ranking congelato
+    // 4. Inserisco iscrizione con ranking congelato e Girone=0
     await connection.execute(
-      "INSERT INTO partecipare (CodiceFIS, IdTorneo, RankingUsato) VALUES (?, ?, ?)",
+      "INSERT INTO partecipare (CodiceFIS, IdTorneo, RankingUsato, Girone) VALUES (?, ?, ?, 0)",
       [codiceFIS, idTorneo, ranking]
     );
 

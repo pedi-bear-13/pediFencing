@@ -15,6 +15,21 @@ const eliminazioneDiretta = document.getElementById("eliminazioneDiretta");
 const gironiMenu = document.getElementById("gironiMenu");
 const classificaGironi = document.getElementById("classificaGironi");
 const classificaFinale = document.getElementById("classificaFinale");
+
+// mostra modal di scelta modalità (bootstrap)
+const modalHtml = `
+  <div class="modal fade" id="modalModalitaGironi" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-4 text-center">
+        <h5>Seleziona modalità di creazione gironi</h5>
+        <div class="mt-4 d-flex justify-content-around">
+          <button class="btn btn-primary" id="modalAuto">Automatico</button>
+          <button class="btn btn-secondary" id="modalManuale">Personalizzata</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  `;
 /**
  * Al caricamento della pagina viene fatto il render dei gironi
  */
@@ -26,13 +41,26 @@ window.onload = () => {
   recuperaTornei().then((response) => {
     response.forEach((torneo) => {
       if (torneo.Id == idParamTorneo) {
-        renderGironi(
-          idParam,
-          dataParam,
-          torneo.NumeroGironi,
-          svolto,
-          idParamTorneo
-        );
+        document.body.insertAdjacentHTML("beforeend", modalHtml);
+        const modalEl = document.getElementById("modalModalitaGironi");
+        const bsModal = new bootstrap.Modal(modalEl);
+        bsModal.show();
+
+        document.getElementById("modalAuto").onclick = () => {
+          bsModal.hide();
+          renderGironi(
+            idParam,
+            dataParam,
+            torneo.NumeroGironi,
+            svolto,
+            idParamTorneo
+          );
+        };
+
+        document.getElementById("modalManuale").onclick = () => {
+          bsModal.hide();
+          //mostraManuale(numeroGir);
+        };
       }
     });
   });
