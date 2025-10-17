@@ -24,7 +24,8 @@ const recuperaAtleti = async (nomeTorneo, data) => {
       `SELECT DISTINCT atleta.CodiceFIS,
               atleta.Nome,
               atleta.Cognome,
-              partecipare.RankingUsato AS Ranking
+              partecipare.RankingUsato AS Ranking,
+              partecipare.Girone AS Girone
        FROM partecipare
        INNER JOIN atleta ON partecipare.CodiceFIS = atleta.CodiceFIS
        INNER JOIN torneo ON partecipare.IdTorneo = torneo.Id

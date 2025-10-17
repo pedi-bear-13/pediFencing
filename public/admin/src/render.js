@@ -269,7 +269,14 @@ export function renderincontri(lista) {
 /**
  * Render gironi + gestione assalti
  */
-export const renderGironi = (nomeTorneo, dataT, numeroGir, stato, idTorneo) => {
+export const renderGironi = (
+  nomeTorneo,
+  dataT,
+  numeroGir,
+  stato,
+  idTorneo,
+  controlloGironi
+) => {
   recuperaAtleta(nomeTorneo, dataT).then((response) => {
     recuperaAssaltiGirone(idTorneo).then((assaltiGironi) => {
       data.classList.remove("d-none");
@@ -338,7 +345,9 @@ export const renderGironi = (nomeTorneo, dataT, numeroGir, stato, idTorneo) => {
 
           html += "</tbody></table></div>";
           countaGir++;
-          assegnaGironi({ idTorneo, assegnazioni });
+          if (controlloGironi) {
+            assegnaGironi({ idTorneo, assegnazioni });
+          }
           html += creaModalGironi(giocatoriDistribuiti, countaGir, stato);
           html += renderincontri(giocatoriDistribuiti);
           tableGironi.innerHTML += html;

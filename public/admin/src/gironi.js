@@ -1,6 +1,6 @@
 //Import moduli
 import { renderGironi } from "./render.js";
-import { recuperaTornei, loginControllo } from "./cache.js";
+import { recuperaTornei, loginControllo, recuperaGironi } from "./cache.js";
 
 //Lettura url
 const url = new URL(window.location.href);
@@ -41,26 +41,46 @@ window.onload = () => {
   recuperaTornei().then((response) => {
     response.forEach((torneo) => {
       if (torneo.Id == idParamTorneo) {
-        document.body.insertAdjacentHTML("beforeend", modalHtml);
-        const modalEl = document.getElementById("modalModalitaGironi");
-        const bsModal = new bootstrap.Modal(modalEl);
-        bsModal.show();
+        recuperaGironi(idParamTorneo).then((response2) => {
+          let controlloGironi = false;
+          for (let i = 0; i < response2.length; i++) {
+            if (response2[i].Girone == 0 || response2[i].Girone == null) {
+              controlloGironi = true;
+            }
+          }
+          if (controlloGironi) {
+            document.body.insertAdjacentHTML("beforeend", modalHtml);
+            const modalEl = document.getElementById("modalModalitaGironi");
+            const bsModal = new bootstrap.Modal(modalEl);
+            bsModal.show();
 
-        document.getElementById("modalAuto").onclick = () => {
-          bsModal.hide();
-          renderGironi(
-            idParam,
-            dataParam,
-            torneo.NumeroGironi,
-            svolto,
-            idParamTorneo
-          );
-        };
+            document.getElementById("modalAuto").onclick = () => {
+              bsModal.hide();
+              renderGironi(
+                idParam,
+                dataParam,
+                torneo.NumeroGironi,
+                svolto,
+                idParamTorneo,
+                controlloGironi
+              );
+            };
 
-        document.getElementById("modalManuale").onclick = () => {
-          bsModal.hide();
-          //mostraManuale(numeroGir);
-        };
+            document.getElementById("modalManuale").onclick = () => {
+              bsModal.hide();
+              //mostraManuale(numeroGir);
+            };
+          } else {
+            renderGironi(
+              idParam,
+              dataParam,
+              torneo.NumeroGironi,
+              svolto,
+              idParamTorneo,
+              controlloGironi
+            );
+          }
+        });
       }
     });
   });

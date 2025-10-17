@@ -271,3 +271,24 @@ export const assegnaGironi = (dizionario) => {
       .catch((error) => reject(error));
   });
 };
+
+/**
+ * Funzione di fetching per recuperare gli assalti dei gironi di un torneo
+ * @param {number} idTorneo
+ * @returns {Promise<Array>} elenco assalti
+ */
+export const recuperaGironi = async (idTorneo) => {
+  return await fetch("/scherma/recuperaGironi", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ idTorneo }),
+  })
+    .then((response) => response.json())
+    .then((response) => response.response)
+    .catch((error) => {
+      console.error("Errore recuperaGironi:", error);
+      return [];
+    });
+};

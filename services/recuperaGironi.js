@@ -4,11 +4,10 @@ const mysql = require("mysql2/promise");
 
 /**
  * Recupera la lista di atleti con girone assegnato per un torneo
- * @param {string} nomeTorneo
- * @param {string} dataTorneo
+ * @param {string} idTorneo
  * @returns {Object[]} lista atleti
  */
-const recuperaGironi = async (nomeTorneo, dataTorneo) => {
+const recuperaGironi = async (idTorneo) => {
   let connection;
   try {
     const conf = JSON.parse(fs.readFileSync("conf.json"));
@@ -19,29 +18,16 @@ const recuperaGironi = async (nomeTorneo, dataTorneo) => {
       database: conf.database,
     });
 
-    // 1. Recupera ID torneo
-    const [tornei] = await connection.execute(
-      "SELECT Id FROM torneo WHERE Nome = ? AND Giorno = ?",
-      [nomeTorneo, dataTorneo]
-    );
-    if (tornei.length === 0) {
-      await connection.end();
-      return { result: "Torneo non trovato" };
-    }
-    const idTorneo = tornei[0].Id;
-
     // 2. Recupera partecipanti e gironi
     const [rows] = await connection.execute(
       `SELECT p.CodiceFIS, a.Nome, a.Cognome, a.Ranking, p.Girone
        FROM partecipare p
        JOIN atleta a ON p.CodiceFIS = a.CodiceFIS
-       WHERE p.IdTorneo = ?
-       ORDER BY p.Girone ASC, a.Ranking ASC`,
+       WHERE p.IdTorneo = ?`,
       [idTorneo]
     );
-
     await connection.end();
-    return { result: "OK", data: rows };
+    return rows;
   } catch (error) {
     if (connection) await connection.end();
     console.error("Errore recupero gironi:", error);

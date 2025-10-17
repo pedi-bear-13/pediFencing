@@ -151,22 +151,18 @@ const recuperaGironi = require("./services/recuperaGironi");
   });
 
   // Recupera lista atleti e gironi
-  app.post("/scherma/recuperaGironi", async (request, response) => {
-    const username = request.headers.username;
-    const password = request.headers.password;
-
-    await checkLogin(username, password)
-      .then(async () => {
-        const { nomeTorneo, dataTorneo } = request.body;
-
-        const rsp = await recuperaGironi(nomeTorneo, dataTorneo);
-        response.json(rsp);
-      })
-      .catch(() => {
-        response.status(401).json({ result: "Unauthorized" });
-      });
+  app.post("/scherma/recuperaGironi", async (req, res) => {
+    const { idTorneo } = req.body;
+    try {
+      const result = await recuperaGironi(idTorneo);
+      res.json({ response: result });
+    } catch (error) {
+      console.error("Errore recuperaGironi:", error);
+      res.status(500).json({ error: error.message });
+    }
   });
 
+  // Registra partecipante ad un torneo
   app.post("/scherma/registraPartecipante", async (request, response) => {
     const username = request.headers.username;
     const password = request.headers.password;
