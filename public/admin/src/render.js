@@ -205,16 +205,20 @@ const tableGironi = document.getElementById("tableGironi");
 /**
  * Distribuisce i giocatori in gironi in modo circolare
  */
-function distribuisciGiocatori(numeroGironi, listaGiocatori) {
-  const numeroGiocatori = listaGiocatori.length;
-  const gironi = new Array(numeroGironi).fill(null).map(() => []);
-  listaGiocatori.sort((a, b) => b.ranking - a.ranking);
-  for (let i = 0; i < numeroGiocatori; i++) {
-    const giocatore = listaGiocatori[i];
-    const indiceGirone = i % numeroGironi;
-    gironi[indiceGirone].push(giocatore);
+function distribuisciGiocatori(numeroGironi, listaGiocatori, listaGironi) {
+  if (!listaGironi || listaGironi.length == 0) {
+    const numeroGiocatori = listaGiocatori.length;
+    const gironi = new Array(numeroGironi).fill(null).map(() => []);
+    listaGiocatori.sort((a, b) => b.ranking - a.ranking);
+    for (let i = 0; i < numeroGiocatori; i++) {
+      const giocatore = listaGiocatori[i];
+      const indiceGirone = i % numeroGironi;
+      gironi[indiceGirone].push(giocatore);
+    }
+    return gironi;
+  } else {
+    return listaGironi;
   }
-  return gironi;
 }
 
 /**
@@ -275,7 +279,8 @@ export const renderGironi = (
   numeroGir,
   stato,
   idTorneo,
-  controlloGironi
+  controlloGironi,
+  listaGironi
 ) => {
   recuperaAtleta(nomeTorneo, dataT).then((response) => {
     recuperaAssaltiGirone(idTorneo).then((assaltiGironi) => {
@@ -283,7 +288,7 @@ export const renderGironi = (
       spinner.classList.add("d-none");
       const partecipantiRedux = response.sort((a, b) => a.Ranking - b.Ranking);
       let countaGir = 0;
-      distribuisciGiocatori(numeroGir, partecipantiRedux).forEach(
+      distribuisciGiocatori(numeroGir, partecipantiRedux, listaGironi).forEach(
         (giocatoriDistribuiti) => {
           let assegnazioni = [];
           // giocatoriDistribuiti è già un array di atleti del singolo girone
