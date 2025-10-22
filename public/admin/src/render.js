@@ -756,3 +756,187 @@ const renderClassificaGironi = (classifica) => {
 };
 
 //------------------------- FINE CLASSIFICA GIRONI  ----------------------------------------
+//------------------------- INIZIO ELIMINAZIONE DIRETTA  ----------------------------------------
+export const renderEliminazioneDiretta = (
+  nomeTorneo,
+  dataT,
+  percentualeElim,
+  numeroGir,
+  idTorneo
+) => {
+  recuperaAtleta(nomeTorneo, dataT).then((response) => {
+    recuperaAssaltiGirone(idTorneo).then((assaltiGironi) => {
+      data.classList.remove("d-none");
+      spinner.classList.add("d-none");
+      // ordina i partecipanti per ranking
+      const partecipantiRedux = response.sort((a, b) => a.Ranking - b.Ranking);
+      let countaGir = 0;
+      const listaGir = [];
+      distribuisciGiocatori(numeroGir, partecipantiRedux).forEach(
+        (giocatoriDistribuiti) => {
+          const tot = {};
+          tot["girone"] = countaGir++;
+          const lista = [];
+
+          giocatoriDistribuiti.forEach((partecipante, index) => {
+            let obj = {};
+            obj["cognome"] = partecipante.Cognome;
+            obj["nome"] = partecipante.Nome;
+            obj["ranking"] = partecipante.Ranking;
+            obj["codiceFis"] = partecipante.CodiceFIS;
+            obj["assalti"] = [];
+
+            giocatoriDistribuiti.forEach((altroPartecipante, indexAltro) => {
+              if (index !== indexAltro) {
+                // cerca assalto relativo a questa coppia
+                const assalto = assaltiGironi.find(
+                  (a) =>
+                    (a.IdAtleta1 === partecipante.CodiceFIS &&
+                      a.IdAtleta2 === altroPartecipante.CodiceFIS) ||
+                    (a.IdAtleta2 === partecipante.CodiceFIS &&
+                      a.IdAtleta1 === altroPartecipante.CodiceFIS)
+                );
+
+                let punteggioTemp = "-";
+                if (assalto) {
+                  // separo risultato (es. "V-3", "V4-2")
+                  const [p1, p2] = assalto.Risultato.split("-");
+
+                  if (assalto.IdAtleta1 === partecipante.CodiceFIS) {
+                    punteggioTemp = p1;
+                  } else if (assalto.IdAtleta2 === partecipante.CodiceFIS) {
+                    punteggioTemp = p2;
+                  }
+                }
+                obj.assalti.push(punteggioTemp);
+              } else {
+                obj.assalti.push(" ");
+              }
+            });
+
+            lista.push(obj);
+          });
+
+          tot["atleti"] = lista;
+          listaGir.push(tot);
+        }
+      );
+      // calcolo della classifica post gironi
+      let primoTabellone = generaAccoppiamenti(
+        riordinaLista(
+          creaClassGir(listaGir, creaMatrici(listaGir)),
+          percentualeElim
+        )
+      );
+      console.log(primoTabellone);
+    });
+  });
+};
+
+function generaAccoppiamenti(classifica) {
+  // Assegna posizione provvisoria in base all'indice (input già ordinato)
+  const ordinati = classifica.map((atleta, index) => ({
+    ...atleta,
+    PosizioneProvv: index + 1,
+  }));
+
+  const n = ordinati.length;
+
+  // Schemi di accoppiamento standard
+  const schemi = {
+    8: [
+      [1, 8],
+      [4, 5],
+      [3, 6],
+      [2, 7],
+    ],
+    16: [
+      [1, 16],
+      [8, 9],
+      [5, 12],
+      [4, 13],
+      [3, 14],
+      [6, 11],
+      [7, 10],
+      [2, 15],
+    ],
+    32: [
+      [1, 32],
+      [16, 17],
+      [9, 24],
+      [8, 25],
+      [5, 28],
+      [12, 21],
+      [13, 20],
+      [4, 29],
+      [3, 30],
+      [14, 19],
+      [11, 22],
+      [6, 27],
+      [7, 26],
+      [10, 23],
+      [15, 18],
+      [2, 31],
+    ],
+  };
+
+  // Trova la dimensione tabellone corretta
+  const potenze = [8, 16, 32];
+  const dimensioneTabellone = potenze.find((p) => n <= p) || 32;
+  const schema = schemi[dimensioneTabellone];
+
+  // Genera accoppiamenti
+  const accoppiamenti = schema.map(([p1, p2]) => {
+    const atleta1 = ordinati.find((a) => a.PosizioneProvv === p1) || null;
+    const atleta2 = ordinati.find((a) => a.PosizioneProvv === p2) || null;
+    return {
+      tabellone: `tab${dimensioneTabellone}`, // 👈 fase del tabellone
+      match: `${p1}-${p2}`,
+      atleta1,
+      atleta2,
+      risultato: null,
+    };
+  });
+
+  // Rimuove match completamente vuoti
+  return accoppiamenti.filter((m) => m.atleta1 || m.atleta2);
+}
+
+// 🏆 Genera il turno successivo dai vincitori
+function generaTurnoSuccessivo(matchCorrenti) {
+  if (!matchCorrenti || matchCorrenti.length === 0) return [];
+
+  // Ricava la dimensione attuale del tabellone (es. 8 da "tab8")
+  const tabelloneAttuale = parseInt(
+    matchCorrenti[0].tabellone.replace("tab", ""),
+    10
+  );
+  const nuovoTabellone = tabelloneAttuale / 2;
+
+  if (nuovoTabellone < 1) return []; // finale già conclusa
+
+  const nuoviMatch = [];
+
+  for (let i = 0; i < matchCorrenti.length; i += 2) {
+    const match1 = matchCorrenti[i];
+    const match2 = matchCorrenti[i + 1];
+
+    // Determina vincitori (qui assumiamo che risultato contenga "atleta1" o "atleta2")
+    const vincitore1 =
+      match1?.risultato === "atleta1" ? match1.atleta1 : match1.atleta2;
+    const vincitore2 =
+      match2?.risultato === "atleta1" ? match2.atleta1 : match2?.atleta2;
+
+    nuoviMatch.push({
+      tabellone: `tab${nuovoTabellone}`,
+      match: `${i + 1}-${i + 2}`,
+      atleta1: vincitore1 || null,
+      atleta2: vincitore2 || null,
+      risultato: null,
+    });
+  }
+
+  return nuoviMatch;
+}
+
+//------------------------- FINE ELIMINAZIONE DIRETTA  ----------------------------------------

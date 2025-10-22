@@ -1,6 +1,5 @@
-//Import moduli
-import { renderIniziale } from "./render.js";
-import { loginControllo } from "./cache.js";
+import { recuperaTornei, loginControllo } from "./cache.js";
+import { renderEliminazioneDiretta } from "./render.js";
 //Lettura url
 const url = new URL(window.location.href);
 const idParam = url.searchParams.get("nomeTorneo");
@@ -15,44 +14,37 @@ const classificaIniziale = document.getElementById("classificaIniziale");
 const classificaGironi = document.getElementById("classificaGironi");
 const classificaFinale = document.getElementById("classificaFinale");
 const logout = document.getElementById("logout");
-
 logout.onclick = () => {
   sessionStorage.removeItem("username");
   sessionStorage.removeItem("password");
   window.location.href = "../index.html";
 };
 /**
- * Al caricamento della pagina viene fatto il render della classifica iniziale
+ * Al caricamento della pagina viene fatto il render della classifica gironi
  */
 window.onload = () => {
   loginControllo(
     sessionStorage.getItem("username"),
     sessionStorage.getItem("password")
   );
-  renderIniziale(idParam, dataParam);
+
+  recuperaTornei().then((response) => {
+    response.forEach((torneo) => {
+      if (torneo.Id == idParamTorneo) {
+        renderEliminazioneDiretta(
+          idParam,
+          dataParam,
+          torneo.PercentualeEliminati,
+          torneo.NumeroGironi,
+          torneo.Id
+        );
+      }
+    });
+  });
 };
 
 /**
- * Gestione per aggiungere partecipanti al torneo
- */
-assegnaPartecipante.onclick = () => {
-  if (svolto == 0) {
-    assegnaPartecipante.classList.add("disabled");
-  } else {
-    window.location.href =
-      "./assegnaTorneo.html?id=" +
-      idParamTorneo +
-      "&nomeTorneo=" +
-      idParam +
-      "&data=" +
-      dataParam +
-      "&svolto=" +
-      svolto;
-  }
-};
-
-/**
- * Gestione button cambio pagina da classifica iniziale a se stessa
+ * Gestione button cambio pagina da classifica gironi a classifica iniziale
  */
 classificaIniziale.onclick = () => {
   window.location.href =
@@ -100,15 +92,7 @@ classificaGironi.onclick = () => {
  * Gestione button cambio pagina da classifica iniziale alla pagina dell'eliminazione diretta
  */
 eliminazioneDiretta.onclick = () => {
-  window.location.href =
-    "./eliminazioneDiretta.html?id=" +
-    idParamTorneo +
-    "&nomeTorneo=" +
-    idParam +
-    "&data=" +
-    dataParam +
-    "&svolto=" +
-    svolto;
+  console.log("Non implementata");
 };
 
 /**
