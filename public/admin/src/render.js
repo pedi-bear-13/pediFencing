@@ -768,10 +768,12 @@ export const renderEliminazioneDiretta = (
     recuperaAssaltiGirone(idTorneo).then((assaltiGironi) => {
       data.classList.remove("d-none");
       spinner.classList.add("d-none");
-      // ordina i partecipanti per ranking
+
       const partecipantiRedux = response.sort((a, b) => a.Ranking - b.Ranking);
+
       let countaGir = 0;
       const listaGir = [];
+
       distribuisciGiocatori(numeroGir, partecipantiRedux).forEach(
         (giocatoriDistribuiti) => {
           const tot = {};
@@ -788,7 +790,6 @@ export const renderEliminazioneDiretta = (
 
             giocatoriDistribuiti.forEach((altroPartecipante, indexAltro) => {
               if (index !== indexAltro) {
-                // cerca assalto relativo a questa coppia
                 const assalto = assaltiGironi.find(
                   (a) =>
                     (a.IdAtleta1 === partecipante.CodiceFIS &&
@@ -799,14 +800,9 @@ export const renderEliminazioneDiretta = (
 
                 let punteggioTemp = "-";
                 if (assalto) {
-                  // separo risultato (es. "V-3", "V4-2")
                   const [p1, p2] = assalto.Risultato.split("-");
-
-                  if (assalto.IdAtleta1 === partecipante.CodiceFIS) {
-                    punteggioTemp = p1;
-                  } else if (assalto.IdAtleta2 === partecipante.CodiceFIS) {
-                    punteggioTemp = p2;
-                  }
+                  punteggioTemp =
+                    assalto.IdAtleta1 === partecipante.CodiceFIS ? p1 : p2;
                 }
                 obj.assalti.push(punteggioTemp);
               } else {
@@ -821,29 +817,67 @@ export const renderEliminazioneDiretta = (
           listaGir.push(tot);
         }
       );
-      // calcolo della classifica post gironi
+
       let primoTabellone = generaAccoppiamenti(
         riordinaLista(
           creaClassGir(listaGir, creaMatrici(listaGir)),
           percentualeElim
         )
       );
-      console.log(primoTabellone);
+
+      // Costruisco l’oggetto fasi: solo il primo turno ha gli atleti, gli altri turni rimangono vuoti
+      const fasi = {};
+      const primoTabName = primoTabellone[0]?.tabellone || "tab8";
+      fasi[primoTabName] = primoTabellone.map((m) => ({
+        ...m,
+        atleta1: m.atleta1 ? { ...m.atleta1, risultato: "" } : null,
+        atleta2: m.atleta2 ? { ...m.atleta2, risultato: "" } : null,
+        risultato: null,
+      }));
+
+      // Genero HTML dei turni successivi vuoti in base al tabellone
+      const dimensione = parseInt(primoTabName.replace("tab", ""), 10);
+      let nextDimensione = dimensione / 2;
+      while (nextDimensione >= 2) {
+        const tabName = `tab${nextDimensione}`;
+        const emptyMatches = Array(nextDimensione / 2).fill({
+          tabellone: tabName,
+          match: "",
+          atleta1: null,
+          atleta2: null,
+          risultato: null,
+        });
+        fasi[tabName] = emptyMatches;
+        nextDimensione /= 2;
+      }
+
+      const htmlTabellone = generaHTMLTabellone(fasi);
+
+      const bracketArea = document.getElementById("bracketArea");
+      if (bracketArea) {
+        bracketArea.innerHTML = htmlTabellone;
+      } else {
+        const div = document.createElement("div");
+        div.id = "bracketArea";
+        div.innerHTML = htmlTabellone;
+        document.getElementById("data").appendChild(div);
+      }
     });
   });
 };
 
 function generaAccoppiamenti(classifica) {
-  // Assegna posizione provvisoria in base all'indice (input già ordinato)
   const ordinati = classifica.map((atleta, index) => ({
     ...atleta,
     PosizioneProvv: index + 1,
   }));
 
   const n = ordinati.length;
-
-  // Schemi di accoppiamento standard
   const schemi = {
+    4: [
+      [1, 4],
+      [2, 3],
+    ],
     8: [
       [1, 8],
       [4, 5],
@@ -880,63 +914,85 @@ function generaAccoppiamenti(classifica) {
     ],
   };
 
-  // Trova la dimensione tabellone corretta
-  const potenze = [8, 16, 32];
+  const potenze = [4, 8, 16, 32];
   const dimensioneTabellone = potenze.find((p) => n <= p) || 32;
   const schema = schemi[dimensioneTabellone];
 
-  // Genera accoppiamenti
-  const accoppiamenti = schema.map(([p1, p2]) => {
-    const atleta1 = ordinati.find((a) => a.PosizioneProvv === p1) || null;
-    const atleta2 = ordinati.find((a) => a.PosizioneProvv === p2) || null;
-    return {
-      tabellone: `tab${dimensioneTabellone}`, // 👈 fase del tabellone
-      match: `${p1}-${p2}`,
-      atleta1,
-      atleta2,
-      risultato: null,
-    };
-  });
-
-  // Rimuove match completamente vuoti
-  return accoppiamenti.filter((m) => m.atleta1 || m.atleta2);
+  return schema
+    .map(([p1, p2]) => {
+      const atleta1 = ordinati.find((a) => a.PosizioneProvv === p1) || null;
+      const atleta2 = ordinati.find((a) => a.PosizioneProvv === p2) || null;
+      return {
+        tabellone: `tab${dimensioneTabellone}`,
+        match: `${p1}-${p2}`,
+        atleta1,
+        atleta2,
+        risultato: null,
+      };
+    })
+    .filter((m) => m.atleta1 || m.atleta2);
 }
 
-// 🏆 Genera il turno successivo dai vincitori
-function generaTurnoSuccessivo(matchCorrenti) {
-  if (!matchCorrenti || matchCorrenti.length === 0) return [];
+export function generaHTMLTabellone(fasi) {
+  if (!fasi || Object.keys(fasi).length === 0)
+    return "<p>Nessun tabellone disponibile</p>";
 
-  // Ricava la dimensione attuale del tabellone (es. 8 da "tab8")
-  const tabelloneAttuale = parseInt(
-    matchCorrenti[0].tabellone.replace("tab", ""),
-    10
-  );
-  const nuovoTabellone = tabelloneAttuale / 2;
+  const titoli = {
+    tab32: "Sedicesimi di Finale",
+    tab16: "Ottavi di Finale",
+    tab8: "Quarti di Finale",
+    tab4: "Semifinali",
+    tab2: "Finale",
+  };
 
-  if (nuovoTabellone < 1) return []; // finale già conclusa
+  function generaFaseHTML(tabName, matchList) {
+    if (!matchList || matchList.length === 0) return "";
 
-  const nuoviMatch = [];
+    const matchHTML = matchList
+      .map(
+        (m) => `
+      <div class="match-box">
+        <div class="athlete ${
+          m.risultato?.vincitore === "atleta1" ? "winner" : ""
+        }">
+          <div class="name">${
+            m.atleta1 ? `${m.atleta1.nome} ${m.atleta1.cognome}` : "Bye"
+          }</div>
+          <div class="pos">${
+            m.atleta1 ? `(${m.atleta1.PosizioneProvv})` : ""
+          }</div>
+          <div class="score">${m.atleta1?.risultato || ""}</div>
+        </div>
+        <div class="athlete ${
+          m.risultato?.vincitore === "atleta2" ? "winner" : ""
+        }">
+          <div class="name">${
+            m.atleta2 ? `${m.atleta2.nome} ${m.atleta2.cognome}` : "Bye"
+          }</div>
+          <div class="pos">${
+            m.atleta2 ? `(${m.atleta2.PosizioneProvv})` : ""
+          }</div>
+          <div class="score">${m.atleta2?.risultato || ""}</div>
+        </div>
+      </div>
+    `
+      )
+      .join("");
 
-  for (let i = 0; i < matchCorrenti.length; i += 2) {
-    const match1 = matchCorrenti[i];
-    const match2 = matchCorrenti[i + 1];
-
-    // Determina vincitori (qui assumiamo che risultato contenga "atleta1" o "atleta2")
-    const vincitore1 =
-      match1?.risultato === "atleta1" ? match1.atleta1 : match1.atleta2;
-    const vincitore2 =
-      match2?.risultato === "atleta1" ? match2.atleta1 : match2?.atleta2;
-
-    nuoviMatch.push({
-      tabellone: `tab${nuovoTabellone}`,
-      match: `${i + 1}-${i + 2}`,
-      atleta1: vincitore1 || null,
-      atleta2: vincitore2 || null,
-      risultato: null,
-    });
+    return `
+      <div class="bracket-round pedi-card-page">
+        <div class="round-title">${titoli[tabName] || tabName}</div>
+        ${matchHTML}
+      </div>
+    `;
   }
 
-  return nuoviMatch;
-}
+  const ordine = ["tab32", "tab16", "tab8", "tab4", "tab2"];
+  const fasiOrdinate = ordine.filter((o) => fasi[o]);
+  const htmlFasi = fasiOrdinate
+    .map((fase) => generaFaseHTML(fase, fasi[fase]))
+    .join("");
 
+  return `<div class="bracket-wrapper">${htmlFasi}</div>`;
+}
 //------------------------- FINE ELIMINAZIONE DIRETTA  ----------------------------------------

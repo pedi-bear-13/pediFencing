@@ -178,3 +178,126 @@ input[type="number"]:focus {
   background-color: var(--bg-panel);
   border-top: 1px solid var(--border-light);
 }
+
+/* Layout orizzontale del tabellone */
+.bracket-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  overflow-x: auto;
+  padding: 20px 10px;
+}
+
+.bracket-round {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 220px;
+}
+
+.round-title {
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-light);
+  font-size: 1.3rem;
+}
+
+.match-box {
+  background: var(--bg-panel);
+  border: 2px solid var(--border-light);
+  border-radius: 10px;
+  padding: 8px;
+}
+
+.match-meta {
+  font-size: 12px;
+  text-align: center;
+  color: var(--text-light);
+  opacity: 0.7;
+  margin-bottom: 6px;
+}
+
+.athlete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+.athlete:hover {
+  outline: 1px solid rgba(219, 39, 119, 0.3);
+}
+
+.athlete.winner {
+  background: rgba(219, 39, 119, 0.15);
+  border: 1px solid var(--accent-rosa);
+}
+
+.athlete .name {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.athlete .pos {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.bracket-wrapper {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-top: 2rem;
+  flex-wrap: nowrap;
+}
+
+.bracket-round {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  min-width: 180px;
+}
+
+.round-title {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: var(--accent-rosa);
+}
+
+.match-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background-color: var(--bg-panel);
+  padding: 0.5rem;
+  border: 2px solid var(--border-light);
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.athlete {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+}
+
+.athlete.winner {
+  border: 2px solid var(--accent-rosa);
+  box-shadow: 0 0 8px var(--accent-rosa);
+}
+
+.name {
+  font-weight: 500;
+}
+
+.pos {
+  font-style: italic;
+  color: var(--text-light);
+  opacity: 0.8;
+}
