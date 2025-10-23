@@ -3,7 +3,7 @@ const mysql = require("mysql2/promise");
 
 /**
  * Aggiorna o inserisce un assalto di un girone
- * @param {*} assaltoObj - { CodiceFISAtleta1, CodiceFISAtleta2, Risultato, Tipo, IdTorneo }
+ * @param {*} assaltoObj - { CodiceFISAtleta1, CodiceFISAtleta2, Risultato, Tipo, idTorneo }
  * @returns { result: "ok" }
  */
 const aggiornaAssalti = async (assaltoObj) => {
@@ -21,8 +21,13 @@ const aggiornaAssalti = async (assaltoObj) => {
     const [rows] = await connection.execute(
       `SELECT Id FROM assalto 
        WHERE IdAtleta1 = ? AND IdAtleta2 = ? 
-         AND Tipo = ? AND IdTorneo = ?`,
-      [assaltoObj.fisUno, assaltoObj.fisDue, "Girone", assaltoObj.idTorneo]
+         AND Tipo = ? AND idTorneo = ?`,
+      [
+        assaltoObj.fisUno,
+        assaltoObj.fisDue,
+        assaltoObj.tipo,
+        assaltoObj.idTorneo,
+      ]
     );
 
     if (rows.length > 0) {
@@ -41,7 +46,7 @@ const aggiornaAssalti = async (assaltoObj) => {
           assaltoObj.fisUno,
           assaltoObj.fisDue,
           assaltoObj.atleta1 + "-" + assaltoObj.atleta2,
-          "Girone",
+          assaltoObj.tipo,
           assaltoObj.idTorneo,
         ]
       );

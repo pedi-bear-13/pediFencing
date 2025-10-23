@@ -393,7 +393,8 @@ export const renderGironi = (
               punteggioPrimo,
               atletaSecondo,
               punteggioSecondo,
-              idTorneo
+              idTorneo,
+              "Girone"
             );
             aggiornaAssalti(assalto).then(() => {
               window.location.reload();
@@ -418,11 +419,12 @@ function resetFormGirone(nGirone) {
 }
 
 // Composizione oggetto assalto
-function checkPunteggi(atleta1, punteggio1, atleta2, punteggio2, idT) {
+function checkPunteggi(atleta1, punteggio1, atleta2, punteggio2, idT, tipo) {
   const obj = {
     fisUno: atleta1,
     fisDue: atleta2,
     idTorneo: idT,
+    tipo: tipo,
   };
 
   if (punteggio1 > punteggio2) {
