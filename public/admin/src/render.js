@@ -829,6 +829,7 @@ export const renderEliminazioneDiretta = (
           )
         );
 
+        // Aggiorno il primo tabellone con i risultati reali
         primoTabellone.forEach((incontro) => {
           assaltiTabellone.forEach((ass) => {
             if (
@@ -841,32 +842,48 @@ export const renderEliminazioneDiretta = (
         });
         console.log(primoTabellone);
 
-        // Costruisco l’oggetto fasi: solo il primo turno ha gli atleti, gli altri turni rimangono vuoti
+        // Creo l'oggetto fasi
         const fasi = {};
-        const primoTabName = primoTabellone[0]?.tabellone || "tab8";
-        fasi[primoTabName] = primoTabellone.map((m) => ({
+        let dimensione = primoTabellone.length * 2; // Numero atleti nel primo tabellone
+        let nextTabellone = primoTabellone.map((m) => ({
           ...m,
-          atleta1: m.atleta1 ? { ...m.atleta1, risultato: "" } : "",
-          atleta2: m.atleta2 ? { ...m.atleta2, risultato: "" } : "",
-          risultato: m.risultato,
+          atleta1: m.atleta1
+            ? { ...m.atleta1, risultato: m.risultato.split("-")[0] }
+            : "",
+          atleta2: m.atleta2
+            ? { ...m.atleta2, risultato: m.risultato.split("-")[1] }
+            : "",
         }));
 
-        // Genero HTML dei turni successivi vuoti in base al tabellone
-        const dimensione = parseInt(primoTabName.replace("tab", ""), 10);
-        let nextDimensione = dimensione / 2;
-        while (nextDimensione >= 2) {
+        const primoTabName = primoTabellone[0]?.tabellone || `tab${dimensione}`;
+        fasi[primoTabName] = nextTabellone;
+
+        // Genero i tabelloni successivi
+        while (dimensione > 2) {
+          const nextDimensione = dimensione / 2;
           const tabName = `tab${nextDimensione}`;
-          const emptyMatches = Array(nextDimensione / 2).fill({
-            tabellone: tabName,
-            match: "",
-            atleta1: "",
-            atleta2: "",
-            risultato: "-",
-          });
-          fasi[tabName] = emptyMatches;
-          nextDimensione /= 2;
+          const matches = [];
+
+          for (let i = 0; i < nextDimensione / 2; i++) {
+            // Proviamo a trovare un match già presente negli assalti
+            const atleta1 = null; // Non sempre ci sono dati per i turni successivi
+            const atleta2 = null;
+            const risultato = "-";
+
+            matches.push({
+              tabellone: tabName,
+              match: `${i + 1}-${nextDimensione - i}`, // esempio generico, puoi adattare
+              atleta1: atleta1 ? { ...atleta1, risultato } : "",
+              atleta2: atleta2 ? { ...atleta2, risultato } : "",
+              risultato,
+            });
+          }
+
+          fasi[tabName] = matches;
+          dimensione = nextDimensione;
         }
 
+        // Genero HTML
         const htmlTabellone = generaHTMLTabellone(fasi);
 
         const bracketArea = document.getElementById("bracketArea");
