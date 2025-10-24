@@ -3,7 +3,7 @@ import {
   recuperaTornei,
   recuperaAtleta,
   assegnaGironi,
-  //iscriviUtenteReg,
+  recuperaAssaltiTabellone,
   //recuperaStorico,
   aggiornaAssalti,
   recuperaAssaltiGirone,
@@ -768,102 +768,108 @@ export const renderEliminazioneDiretta = (
 ) => {
   recuperaAtleta(nomeTorneo, dataT).then((response) => {
     recuperaAssaltiGirone(idTorneo).then((assaltiGironi) => {
-      data.classList.remove("d-none");
-      spinner.classList.add("d-none");
+      recuperaAssaltiTabellone(idTorneo).then((assaltiTabellone) => {
+        console.log(assaltiTabellone);
+        console.log(response);
+        data.classList.remove("d-none");
+        spinner.classList.add("d-none");
 
-      const partecipantiRedux = response.sort((a, b) => a.Ranking - b.Ranking);
+        const partecipantiRedux = response.sort(
+          (a, b) => a.Ranking - b.Ranking
+        );
 
-      let countaGir = 0;
-      const listaGir = [];
+        let countaGir = 0;
+        const listaGir = [];
 
-      distribuisciGiocatori(numeroGir, partecipantiRedux).forEach(
-        (giocatoriDistribuiti) => {
-          const tot = {};
-          tot["girone"] = countaGir++;
-          const lista = [];
+        distribuisciGiocatori(numeroGir, partecipantiRedux).forEach(
+          (giocatoriDistribuiti) => {
+            const tot = {};
+            tot["girone"] = countaGir++;
+            const lista = [];
 
-          giocatoriDistribuiti.forEach((partecipante, index) => {
-            let obj = {};
-            obj["cognome"] = partecipante.Cognome;
-            obj["nome"] = partecipante.Nome;
-            obj["ranking"] = partecipante.Ranking;
-            obj["codiceFis"] = partecipante.CodiceFIS;
-            obj["assalti"] = [];
+            giocatoriDistribuiti.forEach((partecipante, index) => {
+              let obj = {};
+              obj["cognome"] = partecipante.Cognome;
+              obj["nome"] = partecipante.Nome;
+              obj["ranking"] = partecipante.Ranking;
+              obj["codiceFis"] = partecipante.CodiceFIS;
+              obj["assalti"] = [];
 
-            giocatoriDistribuiti.forEach((altroPartecipante, indexAltro) => {
-              if (index !== indexAltro) {
-                const assalto = assaltiGironi.find(
-                  (a) =>
-                    (a.IdAtleta1 === partecipante.CodiceFIS &&
-                      a.IdAtleta2 === altroPartecipante.CodiceFIS) ||
-                    (a.IdAtleta2 === partecipante.CodiceFIS &&
-                      a.IdAtleta1 === altroPartecipante.CodiceFIS)
-                );
+              giocatoriDistribuiti.forEach((altroPartecipante, indexAltro) => {
+                if (index !== indexAltro) {
+                  const assalto = assaltiGironi.find(
+                    (a) =>
+                      (a.IdAtleta1 === partecipante.CodiceFIS &&
+                        a.IdAtleta2 === altroPartecipante.CodiceFIS) ||
+                      (a.IdAtleta2 === partecipante.CodiceFIS &&
+                        a.IdAtleta1 === altroPartecipante.CodiceFIS)
+                  );
 
-                let punteggioTemp = "-";
-                if (assalto) {
-                  const [p1, p2] = assalto.Risultato.split("-");
-                  punteggioTemp =
-                    assalto.IdAtleta1 === partecipante.CodiceFIS ? p1 : p2;
+                  let punteggioTemp = "-";
+                  if (assalto) {
+                    const [p1, p2] = assalto.Risultato.split("-");
+                    punteggioTemp =
+                      assalto.IdAtleta1 === partecipante.CodiceFIS ? p1 : p2;
+                  }
+                  obj.assalti.push(punteggioTemp);
+                } else {
+                  obj.assalti.push(" ");
                 }
-                obj.assalti.push(punteggioTemp);
-              } else {
-                obj.assalti.push(" ");
-              }
+              });
+
+              lista.push(obj);
             });
 
-            lista.push(obj);
-          });
+            tot["atleti"] = lista;
+            listaGir.push(tot);
+          }
+        );
 
-          tot["atleti"] = lista;
-          listaGir.push(tot);
-        }
-      );
+        let primoTabellone = generaAccoppiamenti(
+          riordinaLista(
+            creaClassGir(listaGir, creaMatrici(listaGir)),
+            percentualeElim
+          )
+        );
 
-      let primoTabellone = generaAccoppiamenti(
-        riordinaLista(
-          creaClassGir(listaGir, creaMatrici(listaGir)),
-          percentualeElim
-        )
-      );
-
-      // Costruisco l’oggetto fasi: solo il primo turno ha gli atleti, gli altri turni rimangono vuoti
-      const fasi = {};
-      const primoTabName = primoTabellone[0]?.tabellone || "tab8";
-      fasi[primoTabName] = primoTabellone.map((m) => ({
-        ...m,
-        atleta1: m.atleta1 ? { ...m.atleta1, risultato: "" } : null,
-        atleta2: m.atleta2 ? { ...m.atleta2, risultato: "" } : null,
-        risultato: null,
-      }));
-
-      // Genero HTML dei turni successivi vuoti in base al tabellone
-      const dimensione = parseInt(primoTabName.replace("tab", ""), 10);
-      let nextDimensione = dimensione / 2;
-      while (nextDimensione >= 2) {
-        const tabName = `tab${nextDimensione}`;
-        const emptyMatches = Array(nextDimensione / 2).fill({
-          tabellone: tabName,
-          match: "",
-          atleta1: null,
-          atleta2: null,
+        // Costruisco l’oggetto fasi: solo il primo turno ha gli atleti, gli altri turni rimangono vuoti
+        const fasi = {};
+        const primoTabName = primoTabellone[0]?.tabellone || "tab8";
+        fasi[primoTabName] = primoTabellone.map((m) => ({
+          ...m,
+          atleta1: m.atleta1 ? { ...m.atleta1, risultato: "" } : null,
+          atleta2: m.atleta2 ? { ...m.atleta2, risultato: "" } : null,
           risultato: null,
-        });
-        fasi[tabName] = emptyMatches;
-        nextDimensione /= 2;
-      }
+        }));
 
-      const htmlTabellone = generaHTMLTabellone(fasi);
+        // Genero HTML dei turni successivi vuoti in base al tabellone
+        const dimensione = parseInt(primoTabName.replace("tab", ""), 10);
+        let nextDimensione = dimensione / 2;
+        while (nextDimensione >= 2) {
+          const tabName = `tab${nextDimensione}`;
+          const emptyMatches = Array(nextDimensione / 2).fill({
+            tabellone: tabName,
+            match: "",
+            atleta1: null,
+            atleta2: null,
+            risultato: null,
+          });
+          fasi[tabName] = emptyMatches;
+          nextDimensione /= 2;
+        }
 
-      const bracketArea = document.getElementById("bracketArea");
-      if (bracketArea) {
-        bracketArea.innerHTML = htmlTabellone;
-      } else {
-        const div = document.createElement("div");
-        div.id = "bracketArea";
-        div.innerHTML = htmlTabellone;
-        document.getElementById("data").appendChild(div);
-      }
+        const htmlTabellone = generaHTMLTabellone(fasi);
+
+        const bracketArea = document.getElementById("bracketArea");
+        if (bracketArea) {
+          bracketArea.innerHTML = htmlTabellone;
+        } else {
+          const div = document.createElement("div");
+          div.id = "bracketArea";
+          div.innerHTML = htmlTabellone;
+          document.getElementById("data").appendChild(div);
+        }
+      });
     });
   });
 };
@@ -957,22 +963,23 @@ export function generaHTMLTabellone(fasi) {
         <div class="athlete ${
           m.risultato?.vincitore === "atleta1" ? "winner" : ""
         }">
+        <div class="pos">${
+          m.atleta1 ? `(${m.atleta1.PosizioneProvv})` : ""
+        }</div>
           <div class="name">${
             m.atleta1 ? `${m.atleta1.nome} ${m.atleta1.cognome}` : "Bye"
           }</div>
-          <div class="pos">${
-            m.atleta1 ? `(${m.atleta1.PosizioneProvv})` : ""
-          }</div>
+
           <div class="score">${m.atleta1?.risultato || ""}</div>
         </div>
         <div class="athlete ${
           m.risultato?.vincitore === "atleta2" ? "winner" : ""
         }">
+        <div class="pos">${
+          m.atleta2 ? `(${m.atleta2.PosizioneProvv})` : ""
+        }</div>
           <div class="name">${
             m.atleta2 ? `${m.atleta2.nome} ${m.atleta2.cognome}` : "Bye"
-          }</div>
-          <div class="pos">${
-            m.atleta2 ? `(${m.atleta2.PosizioneProvv})` : ""
           }</div>
           <div class="score">${m.atleta2?.risultato || ""}</div>
         </div>

@@ -18,6 +18,7 @@ const eliminaTorneo = require("./services/eliminaTorneo.js");
 const modificaTorneo = require("./services/modificaTorneo.js");
 const registraPartecipante = require("./services/registraPartecipante.js");
 const recuperaAssaltiGirone = require("./services/recuperaAssaltiGirone.js");
+const recuperaAssaltiTabellone = require("./services/recuperaAssaltiTabellone.js");
 const assegnaGironi = require("./services/assegnaGironi");
 const recuperaGironi = require("./services/recuperaGironi");
 
@@ -129,6 +130,20 @@ const recuperaGironi = require("./services/recuperaGironi");
       res.json({ response: result });
     } catch (error) {
       console.error("Errore recuperaAssaltiGirone:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  /**
+   * Recupera tutti gli assalti di tabellone per un torneo
+   */
+  app.post("/scherma/recuperaAssaltiTabellone", async (req, res) => {
+    const { idTorneo } = req.body;
+    try {
+      const result = await recuperaAssaltiTabellone(idTorneo);
+      res.json({ response: result });
+    } catch (error) {
+      console.error("Errore recuperaAssaltiTabellone:", error);
       res.status(500).json({ error: error.message });
     }
   });

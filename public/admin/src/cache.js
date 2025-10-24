@@ -252,6 +252,27 @@ export const recuperaAssaltiGirone = async (idTorneo) => {
 };
 
 /**
+ * Funzione di fetching per recuperare gli assalti dei tabelloni di un torneo
+ * @param {number} idTorneo
+ * @returns {Promise<Array>} elenco assalti
+ */
+export const recuperaAssaltiTabellone = async (idTorneo) => {
+  return await fetch("/scherma/recuperaAssaltiTabellone", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ idTorneo }),
+  })
+    .then((response) => response.json())
+    .then((response) => response.response)
+    .catch((error) => {
+      console.error("Errore recuperaAssaltiTabellone:", error);
+      return [];
+    });
+};
+
+/**
  * Servizio per assegnare un girone ad un atleta
  * @param {Object} dizionario - deve contenere: { codiceFIS, idTorneo, girone }
  */
