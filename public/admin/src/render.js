@@ -664,8 +664,8 @@ const creaClassGir = (listaGironi, listaMatrix) => {
           }
         }
       }
-
       let obj = {
+        codiceFis: atl.codiceFis,
         cognome: atl.cognome,
         nome: atl.nome,
         date: sum,
@@ -769,8 +769,6 @@ export const renderEliminazioneDiretta = (
   recuperaAtleta(nomeTorneo, dataT).then((response) => {
     recuperaAssaltiGirone(idTorneo).then((assaltiGironi) => {
       recuperaAssaltiTabellone(idTorneo).then((assaltiTabellone) => {
-        console.log(assaltiTabellone);
-        console.log(response);
         data.classList.remove("d-none");
         spinner.classList.add("d-none");
 
@@ -824,7 +822,6 @@ export const renderEliminazioneDiretta = (
             listaGir.push(tot);
           }
         );
-
         let primoTabellone = generaAccoppiamenti(
           riordinaLista(
             creaClassGir(listaGir, creaMatrici(listaGir)),
@@ -832,14 +829,26 @@ export const renderEliminazioneDiretta = (
           )
         );
 
+        primoTabellone.forEach((incontro) => {
+          assaltiTabellone.forEach((ass) => {
+            if (
+              ass.IdAtleta1 == incontro.atleta1.codiceFis &&
+              ass.IdAtleta2 == incontro.atleta2.codiceFis
+            ) {
+              incontro.risultato = ass.Risultato;
+            }
+          });
+        });
+        console.log(primoTabellone);
+
         // Costruisco l’oggetto fasi: solo il primo turno ha gli atleti, gli altri turni rimangono vuoti
         const fasi = {};
         const primoTabName = primoTabellone[0]?.tabellone || "tab8";
         fasi[primoTabName] = primoTabellone.map((m) => ({
           ...m,
-          atleta1: m.atleta1 ? { ...m.atleta1, risultato: "" } : null,
-          atleta2: m.atleta2 ? { ...m.atleta2, risultato: "" } : null,
-          risultato: null,
+          atleta1: m.atleta1 ? { ...m.atleta1, risultato: "" } : "",
+          atleta2: m.atleta2 ? { ...m.atleta2, risultato: "" } : "",
+          risultato: m.risultato,
         }));
 
         // Genero HTML dei turni successivi vuoti in base al tabellone
@@ -850,9 +859,9 @@ export const renderEliminazioneDiretta = (
           const emptyMatches = Array(nextDimensione / 2).fill({
             tabellone: tabName,
             match: "",
-            atleta1: null,
-            atleta2: null,
-            risultato: null,
+            atleta1: "",
+            atleta2: "",
+            risultato: "-",
           });
           fasi[tabName] = emptyMatches;
           nextDimensione /= 2;
@@ -928,14 +937,14 @@ function generaAccoppiamenti(classifica) {
 
   return schema
     .map(([p1, p2]) => {
-      const atleta1 = ordinati.find((a) => a.PosizioneProvv === p1) || null;
-      const atleta2 = ordinati.find((a) => a.PosizioneProvv === p2) || null;
+      const atleta1 = ordinati.find((a) => a.PosizioneProvv === p1) || "";
+      const atleta2 = ordinati.find((a) => a.PosizioneProvv === p2) || "";
       return {
         tabellone: `tab${dimensioneTabellone}`,
         match: `${p1}-${p2}`,
         atleta1,
         atleta2,
-        risultato: null,
+        risultato: "-",
       };
     })
     .filter((m) => m.atleta1 || m.atleta2);
@@ -987,7 +996,6 @@ export function generaHTMLTabellone(fasi) {
     `
       )
       .join("");
-
     return `
       <div class="bracket-round pedi-card-page">
         <div class="round-title">${titoli[tabName] || tabName}</div>
