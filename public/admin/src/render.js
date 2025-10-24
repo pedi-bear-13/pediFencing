@@ -822,29 +822,18 @@ export const renderEliminazioneDiretta = (
             listaGir.push(tot);
           }
         );
+
         let primoTabellone = generaAccoppiamenti(
           riordinaLista(
             creaClassGir(listaGir, creaMatrici(listaGir)),
             percentualeElim
-          )
+          ),
+          assaltiTabellone
         );
-
-        // Aggiorno il primo tabellone con i risultati reali
-        primoTabellone.forEach((incontro) => {
-          assaltiTabellone.forEach((ass) => {
-            if (
-              ass.IdAtleta1 == incontro.atleta1.codiceFis &&
-              ass.IdAtleta2 == incontro.atleta2.codiceFis
-            ) {
-              incontro.risultato = ass.Risultato;
-            }
-          });
-        });
-        console.log(primoTabellone);
 
         // Creo l'oggetto fasi
         const fasi = {};
-        let dimensione = primoTabellone.length * 2; // Numero atleti nel primo tabellone
+        let dimensione = primoTabellone.length * 2;
         let nextTabellone = primoTabellone.map((m) => ({
           ...m,
           atleta1: m.atleta1
@@ -858,23 +847,64 @@ export const renderEliminazioneDiretta = (
         const primoTabName = primoTabellone[0]?.tabellone || `tab${dimensione}`;
         fasi[primoTabName] = nextTabellone;
 
-        // Genero i tabelloni successivi
+        // Genero i tabelloni successivi propagando i vincitori
         while (dimensione > 2) {
           const nextDimensione = dimensione / 2;
           const tabName = `tab${nextDimensione}`;
           const matches = [];
 
-          for (let i = 0; i < nextDimensione / 2; i++) {
-            // Proviamo a trovare un match già presente negli assalti
-            const atleta1 = null; // Non sempre ci sono dati per i turni successivi
-            const atleta2 = null;
-            const risultato = "-";
+          const vincitori = [];
+          fasi[`tab${dimensione}`].forEach((match) => {
+            const a1 = match.atleta1;
+            const a2 = match.atleta2;
+
+            if (a1 && a2 && a1.risultato !== "" && a2.risultato !== "") {
+              const p1 = parseInt(a1.risultato);
+              const p2 = parseInt(a2.risultato);
+              if (!isNaN(p1) && !isNaN(p2)) {
+                vincitori.push(p1 > p2 ? a1 : a2); //chi ha punteggio maggiore avanza
+              }
+            } else if (a1 && !a2) {
+              vincitori.push(a1); //caso bye
+            } else if (!a1 && a2) {
+              vincitori.push(a2); //caso bye
+            }
+          });
+
+          for (let i = 0; i < vincitori.length; i += 2) {
+            const atleta1 = vincitori[i] || "";
+            const atleta2 = vincitori[i + 1] || "";
+
+            const assaltoReale = assaltiTabellone.find(
+              (a) =>
+                a.TipoAssalto === tabName &&
+                ((a.IdAtleta1 === atleta1.codiceFis &&
+                  a.IdAtleta2 === atleta2.codiceFis) ||
+                  (a.IdAtleta2 === atleta1.codiceFis &&
+                    a.IdAtleta1 === atleta2.codiceFis))
+            );
+
+            let risultato = "-";
+            let atleta1Ris = "";
+            let atleta2Ris = "";
+
+            if (assaltoReale) {
+              const [p1, p2] = assaltoReale.Risultato.split("-");
+              if (assaltoReale.IdAtleta1 === atleta1.codiceFis) {
+                atleta1Ris = p1;
+                atleta2Ris = p2;
+              } else {
+                atleta1Ris = p2;
+                atleta2Ris = p1;
+              }
+              risultato = assaltoReale.Risultato;
+            }
 
             matches.push({
               tabellone: tabName,
-              match: `${i + 1}-${nextDimensione - i}`, // esempio generico, puoi adattare
-              atleta1: atleta1 ? { ...atleta1, risultato } : "",
-              atleta2: atleta2 ? { ...atleta2, risultato } : "",
+              match: `${i + 1}-${nextDimensione - i}`,
+              atleta1: atleta1 ? { ...atleta1, risultato: atleta1Ris } : "",
+              atleta2: atleta2 ? { ...atleta2, risultato: atleta2Ris } : "",
               risultato,
             });
           }
@@ -900,7 +930,7 @@ export const renderEliminazioneDiretta = (
   });
 };
 
-function generaAccoppiamenti(classifica) {
+function generaAccoppiamenti(classifica, assaltiTabellone) {
   const ordinati = classifica.map((atleta, index) => ({
     ...atleta,
     PosizioneProvv: index + 1,
@@ -956,12 +986,37 @@ function generaAccoppiamenti(classifica) {
     .map(([p1, p2]) => {
       const atleta1 = ordinati.find((a) => a.PosizioneProvv === p1) || "";
       const atleta2 = ordinati.find((a) => a.PosizioneProvv === p2) || "";
+
+      const assalto = assaltiTabellone.find(
+        (a) =>
+          (a.IdAtleta1 === atleta1.codiceFis &&
+            a.IdAtleta2 === atleta2.codiceFis) ||
+          (a.IdAtleta2 === atleta1.codiceFis &&
+            a.IdAtleta1 === atleta2.codiceFis)
+      );
+
+      let risultato = "-";
+      let atleta1Ris = "";
+      let atleta2Ris = "";
+      console.log(assalto);
+      if (assalto && assalto.Risultato !== "-") {
+        const [p1, p2] = assalto.Risultato.split("-");
+        if (assalto.IdAtleta1 === atleta1.codiceFis) {
+          atleta1Ris = p1;
+          atleta2Ris = p2;
+        } else {
+          atleta1Ris = p2;
+          atleta2Ris = p1;
+        }
+        risultato = atleta1Ris + "-" + atleta2Ris;
+      }
+
       return {
         tabellone: `tab${dimensioneTabellone}`,
         match: `${p1}-${p2}`,
-        atleta1,
-        atleta2,
-        risultato: "-",
+        atleta1: atleta1 ? { ...atleta1, risultato: atleta1Ris } : "",
+        atleta2: atleta2 ? { ...atleta2, risultato: atleta2Ris } : "",
+        risultato,
       };
     })
     .filter((m) => m.atleta1 || m.atleta2);
