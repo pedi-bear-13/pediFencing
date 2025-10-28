@@ -36,9 +36,10 @@
                 <img src="../arrow_back.svg" class="pedi-icon" />
               </a>
             </button>
-            <button class="bottoni-barra" type="button">
+            <button class="bottoni-barra" type="button" id="apriModalRisultato">
               <img src="../edit.svg" class="pedi-icon" />
             </button>
+
             <button
               class="bottoni-barra"
               type="button"
@@ -134,6 +135,82 @@
       </div>
       <div class="row" id="bracketArea"></div>
     </div>
+
+    <!-- Modal Inserimento Risultato -->
+    <div
+      class="modal fade"
+      id="modalRisultato"
+      tabindex="-1"
+      aria-labelledby="modalRisultatoLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content pedi-card">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalRisultatoLabel">
+              Inserisci Risultato Assalto
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Chiudi"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="formRisultato" class="row g-3">
+              <div class="col-12">
+                <label for="matchSelect" class="form-label">Assalto</label>
+                <select class="form-select" id="matchSelect" required></select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Atleta 1</label>
+                <input type="text" class="form-control" id="atleta1" disabled />
+              </div>
+              <div class="col-md-6">
+                <label for="punteggio1" class="form-label">Punteggio</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="punteggio1"
+                  min="0"
+                  max="15"
+                  required
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Atleta 2</label>
+                <input type="text" class="form-control" id="atleta2" disabled />
+              </div>
+              <div class="col-md-6">
+                <label for="punteggio2" class="form-label">Punteggio</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="punteggio2"
+                  min="0"
+                  max="15"
+                  required
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Annulla
+            </button>
+            <button type="submit" class="btn btn-rosa" form="formRisultato">
+              Conferma
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="src/eliminazioneDiretta.js" type="module"></script>
   </body>
 </html>
