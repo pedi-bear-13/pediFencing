@@ -16,7 +16,6 @@ const aggiornaAssalti = async (assaltoObj) => {
       password: conf.password,
       database: conf.database,
     });
-
     // Verifica se l'assalto esiste
     const [rows] = await connection.execute(
       `SELECT Id FROM assalto 
@@ -45,7 +44,7 @@ const aggiornaAssalti = async (assaltoObj) => {
         [
           assaltoObj.fisUno,
           assaltoObj.fisDue,
-          assaltoObj.atleta1 + "-" + assaltoObj.atleta2,
+          assaltoObj.Risultato,
           assaltoObj.tipo,
           assaltoObj.idTorneo,
         ]

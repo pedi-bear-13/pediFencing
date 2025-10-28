@@ -998,7 +998,6 @@ function generaAccoppiamenti(classifica, assaltiTabellone) {
       let risultato = "-";
       let atleta1Ris = "";
       let atleta2Ris = "";
-      console.log(assalto);
       if (assalto && assalto.Risultato !== "-") {
         const [p1, p2] = assalto.Risultato.split("-");
         if (assalto.IdAtleta1 === atleta1.codiceFis) {

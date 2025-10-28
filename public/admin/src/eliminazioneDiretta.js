@@ -1,4 +1,9 @@
-import { recuperaTornei, loginControllo, aggiornaAssalti } from "./cache.js";
+import {
+  recuperaTornei,
+  loginControllo,
+  aggiornaAssalti,
+  recuperaAtleta,
+} from "./cache.js";
 import { renderEliminazioneDiretta } from "./render.js";
 //Lettura url
 const url = new URL(window.location.href);
@@ -99,13 +104,25 @@ matchSelect.addEventListener("change", () => {
   atleta2Input.value = match.atleta2;
 });
 
-formRisultato.addEventListener("submit", (e) => {
+formRisultato.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  const index = matchSelect.value;
+  const match = matchList[index];
   const atleta1 = atleta1Input.value;
   const atleta2 = atleta2Input.value;
   const p1 = parseInt(punteggio1.value);
   const p2 = parseInt(punteggio2.value);
+  const faseToTabellone = {
+    finale: "tab2",
+    semifinali: "tab4",
+    "quarti di finale": "tab8",
+    "ottavi di finale": "tab16",
+    "sedicesimi di finale": "tab32",
+  };
+
+  const faseNormalizzata = match.fase?.trim().toLowerCase();
+  const tipoTabellone = faseToTabellone[faseNormalizzata] || "tab?";
 
   if (isNaN(p1) || isNaN(p2) || p1 < 0 || p1 > 15 || p2 < 0 || p2 > 15) {
     alert("Inserisci punteggi validi tra 0 e 15.");
@@ -117,30 +134,44 @@ formRisultato.addEventListener("submit", (e) => {
     return;
   }
 
-  const fisUno = trovaCodiceFIS(atleta1);
-  const fisDue = trovaCodiceFIS(atleta2);
+  try {
+    const atleti = await recuperaAtleta(idParam, dataParam);
 
-  if (!fisUno || !fisDue) {
-    alert("Errore nel recupero dei codici FIS.");
-    return;
-  }
+    let codice1 = null;
+    let codice2 = null;
 
-  aggiornaAssalti({
-    idTorneo: idParamTorneo,
-    fisUno,
-    atleta1: p1,
-    fisDue,
-    atleta2: p2,
-  }).then(() => {
+    atleti.forEach((a) => {
+      const nomeCompleto = `${a.Nome} ${a.Cognome}`.trim();
+      if (nomeCompleto === atleta1) codice1 = a.CodiceFIS;
+      if (nomeCompleto === atleta2) codice2 = a.CodiceFIS;
+    });
+
+    if (!codice1 || !codice2) {
+      alert("Errore nel recupero dei codici FIS.");
+      return;
+    }
+
+    const vincitore =
+      p1 > p2 ? { codice: codice1, punti: p1 } : { codice: codice2, punti: p2 };
+    const perdente =
+      p1 > p2 ? { codice: codice2, punti: p2 } : { codice: codice1, punti: p1 };
+    const risultato = `${vincitore.punti}-${perdente.punti}`;
+
+    await aggiornaAssalti({
+      fisUno: vincitore.codice,
+      fisDue: perdente.codice,
+      Risultato: risultato,
+      tipo: tipoTabellone,
+      idTorneo: idParamTorneo,
+    });
+
     modal.hide();
-    renderEliminazioneDiretta(idParam, dataParam, null, null, idParamTorneo);
-  });
+    window.location.reload();
+  } catch (error) {
+    console.error("Errore durante l'invio:", error);
+    alert("Errore durante l'inserimento del risultato.");
+  }
 });
-
-function trovaCodiceFIS(nomeCompleto) {
-  // Da migliorare: idealmente usare una mappa nome → codiceFIS
-  return null; // placeholder
-}
 
 /**
  * Gestione button cambio pagina da classifica gironi a classifica iniziale
