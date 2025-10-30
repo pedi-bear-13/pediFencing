@@ -846,7 +846,6 @@ export const renderEliminazioneDiretta = (
 
         const primoTabName = primoTabellone[0]?.tabellone || `tab${dimensione}`;
         fasi[primoTabName] = nextTabellone;
-
         // Genero i tabelloni successivi propagando i vincitori
         while (dimensione > 2) {
           const nextDimensione = dimensione / 2;
@@ -862,12 +861,12 @@ export const renderEliminazioneDiretta = (
               const p1 = parseInt(a1.risultato);
               const p2 = parseInt(a2.risultato);
               if (!isNaN(p1) && !isNaN(p2)) {
-                vincitori.push(p1 > p2 ? a1 : a2); //chi ha punteggio maggiore avanza
+                vincitori.push(p1 > p2 ? a1 : a2);
               }
             } else if (a1 && !a2) {
-              vincitori.push(a1); //caso bye
+              vincitori.push(a1);
             } else if (!a1 && a2) {
-              vincitori.push(a2); //caso bye
+              vincitori.push(a2);
             }
           });
 
@@ -875,29 +874,31 @@ export const renderEliminazioneDiretta = (
             const atleta1 = vincitori[i] || "";
             const atleta2 = vincitori[i + 1] || "";
 
-            const assaltoReale = assaltiTabellone.find(
+            // Verifica se esiste già un assalto con risultato valido
+            const assaltoEsistente = assaltiTabellone.find(
               (a) =>
-                a.TipoAssalto === tabName &&
                 ((a.IdAtleta1 === atleta1.codiceFis &&
                   a.IdAtleta2 === atleta2.codiceFis) ||
                   (a.IdAtleta2 === atleta1.codiceFis &&
-                    a.IdAtleta1 === atleta2.codiceFis))
+                    a.IdAtleta1 === atleta2.codiceFis)) &&
+                a.Risultato !== "-" &&
+                a.Risultato !== ""
             );
 
             let risultato = "-";
             let atleta1Ris = "";
             let atleta2Ris = "";
 
-            if (assaltoReale) {
-              const [p1, p2] = assaltoReale.Risultato.split("-");
-              if (assaltoReale.IdAtleta1 === atleta1.codiceFis) {
+            if (assaltoEsistente) {
+              const [p1, p2] = assaltoEsistente.Risultato.split("-");
+              if (assaltoEsistente.IdAtleta1 === atleta1.codiceFis) {
                 atleta1Ris = p1;
                 atleta2Ris = p2;
               } else {
                 atleta1Ris = p2;
                 atleta2Ris = p1;
               }
-              risultato = assaltoReale.Risultato;
+              risultato = assaltoEsistente.Risultato;
             }
 
             matches.push({
@@ -913,6 +914,8 @@ export const renderEliminazioneDiretta = (
           dimensione = nextDimensione;
         }
 
+        console.log(fasi);
+        console.log(assaltiTabellone);
         // Genero HTML
         const htmlTabellone = generaHTMLTabellone(fasi);
 
