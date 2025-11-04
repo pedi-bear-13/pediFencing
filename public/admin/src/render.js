@@ -1087,3 +1087,287 @@ export function generaHTMLTabellone(fasi) {
   return `<div class="bracket-wrapper">${htmlFasi}</div>`;
 }
 //------------------------- FINE ELIMINAZIONE DIRETTA  ----------------------------------------
+//------------------------- INIZIO CLASSIFICA FINALE ---------------------------------------
+
+export const creaClassificaFinale = (
+  nomeTorneo,
+  dataT,
+  percentualeElim,
+  numeroGir,
+  idTorneo
+) => {
+  recuperaAtleta(nomeTorneo, dataT).then((response) => {
+    recuperaAssaltiGirone(idTorneo).then((assaltiGironi) => {
+      recuperaAssaltiTabellone(idTorneo).then((assaltiTabellone) => {
+        data.classList.remove("d-none");
+        spinner.classList.add("d-none");
+
+        const partecipantiRedux = response.sort(
+          (a, b) => a.Ranking - b.Ranking
+        );
+
+        let countaGir = 0;
+        const listaGir = [];
+
+        distribuisciGiocatori(numeroGir, partecipantiRedux).forEach(
+          (giocatoriDistribuiti) => {
+            const tot = {};
+            tot["girone"] = countaGir++;
+            const lista = [];
+
+            giocatoriDistribuiti.forEach((partecipante, index) => {
+              let obj = {};
+              obj["cognome"] = partecipante.Cognome;
+              obj["nome"] = partecipante.Nome;
+              obj["ranking"] = partecipante.Ranking;
+              obj["codiceFis"] = partecipante.CodiceFIS;
+              obj["assalti"] = [];
+
+              giocatoriDistribuiti.forEach((altroPartecipante, indexAltro) => {
+                if (index !== indexAltro) {
+                  const assalto = assaltiGironi.find(
+                    (a) =>
+                      (a.IdAtleta1 === partecipante.CodiceFIS &&
+                        a.IdAtleta2 === altroPartecipante.CodiceFIS) ||
+                      (a.IdAtleta2 === partecipante.CodiceFIS &&
+                        a.IdAtleta1 === altroPartecipante.CodiceFIS)
+                  );
+
+                  let punteggioTemp = "-";
+                  if (assalto) {
+                    const [p1, p2] = assalto.Risultato.split("-");
+                    punteggioTemp =
+                      assalto.IdAtleta1 === partecipante.CodiceFIS ? p1 : p2;
+                  }
+                  obj.assalti.push(punteggioTemp);
+                } else {
+                  obj.assalti.push(" ");
+                }
+              });
+
+              lista.push(obj);
+            });
+
+            tot["atleti"] = lista;
+            listaGir.push(tot);
+          }
+        );
+
+        let classificaPostGironi = riordinaLista(
+          creaClassGir(listaGir, creaMatrici(listaGir)),
+          percentualeElim
+        );
+
+        let primoTabellone = generaAccoppiamenti(
+          riordinaLista(
+            creaClassGir(listaGir, creaMatrici(listaGir)),
+            percentualeElim
+          ),
+          assaltiTabellone
+        );
+
+        // Creo l'oggetto fasi
+        const fasi = {};
+        let dimensione = primoTabellone.length * 2;
+        let nextTabellone = primoTabellone.map((m) => ({
+          ...m,
+          atleta1: m.atleta1
+            ? { ...m.atleta1, risultato: m.risultato.split("-")[0] }
+            : "",
+          atleta2: m.atleta2
+            ? { ...m.atleta2, risultato: m.risultato.split("-")[1] }
+            : "",
+        }));
+
+        const primoTabName = primoTabellone[0]?.tabellone || `tab${dimensione}`;
+        fasi[primoTabName] = nextTabellone;
+        // Genero i tabelloni successivi propagando i vincitori
+        while (dimensione > 2) {
+          const nextDimensione = dimensione / 2;
+          const tabName = `tab${nextDimensione}`;
+          const matches = [];
+
+          const vincitori = [];
+          fasi[`tab${dimensione}`].forEach((match) => {
+            const a1 = match.atleta1;
+            const a2 = match.atleta2;
+
+            if (a1 && a2 && a1.risultato !== "" && a2.risultato !== "") {
+              const p1 = parseInt(a1.risultato);
+              const p2 = parseInt(a2.risultato);
+              if (!isNaN(p1) && !isNaN(p2)) {
+                vincitori.push(p1 > p2 ? a1 : a2);
+              }
+            } else if (a1 && !a2) {
+              vincitori.push(a1);
+            } else if (!a1 && a2) {
+              vincitori.push(a2);
+            }
+          });
+
+          for (let i = 0; i < vincitori.length; i += 2) {
+            const atleta1 = vincitori[i] || "";
+            const atleta2 = vincitori[i + 1] || "";
+
+            // Verifica se esiste già un assalto con risultato valido
+            const assaltoEsistente = assaltiTabellone.find(
+              (a) =>
+                ((a.IdAtleta1 === atleta1.codiceFis &&
+                  a.IdAtleta2 === atleta2.codiceFis) ||
+                  (a.IdAtleta2 === atleta1.codiceFis &&
+                    a.IdAtleta1 === atleta2.codiceFis)) &&
+                a.Risultato !== "-" &&
+                a.Risultato !== ""
+            );
+
+            let risultato = "-";
+            let atleta1Ris = "";
+            let atleta2Ris = "";
+
+            if (assaltoEsistente) {
+              const [p1, p2] = assaltoEsistente.Risultato.split("-");
+              if (assaltoEsistente.IdAtleta1 === atleta1.codiceFis) {
+                atleta1Ris = p1;
+                atleta2Ris = p2;
+              } else {
+                atleta1Ris = p2;
+                atleta2Ris = p1;
+              }
+              risultato = assaltoEsistente.Risultato;
+            }
+
+            matches.push({
+              tabellone: tabName,
+              match: `${i + 1}-${nextDimensione - i}`,
+              atleta1: atleta1 ? { ...atleta1, risultato: atleta1Ris } : "",
+              atleta2: atleta2 ? { ...atleta2, risultato: atleta2Ris } : "",
+              risultato,
+            });
+          }
+
+          fasi[tabName] = matches;
+          dimensione = nextDimensione;
+        }
+        const classificaFinale = generaClassificaFinale(
+          fasi,
+          classificaPostGironi
+        );
+        renderClassificaFinale(classificaFinale);
+      });
+    });
+  });
+};
+
+const generaClassificaFinale = (fasi, classificaPostGironi) => {
+  const classifica = [];
+  const giàPiazzati = new Set();
+
+  // Finale: 1° e 2°
+  const finali = fasi.tab2?.[0];
+  if (finali) {
+    const p1 = parseInt(finali.atleta1.risultato);
+    const p2 = parseInt(finali.atleta2.risultato);
+    const vincitore = p1 > p2 ? finali.atleta1 : finali.atleta2;
+    const perdente = p1 > p2 ? finali.atleta2 : finali.atleta1;
+    classifica.push(vincitore, perdente);
+    giàPiazzati.add(vincitore.codiceFis);
+    giàPiazzati.add(perdente.codiceFis);
+  }
+
+  // Semifinali: 3° pari merito (senza ordinamento)
+  (fasi.tab4 || []).forEach((match) => {
+    const p1 = parseInt(match.atleta1.risultato);
+    const p2 = parseInt(match.atleta2.risultato);
+    const perdente = p1 > p2 ? match.atleta2 : match.atleta1;
+    if (!giàPiazzati.has(perdente.codiceFis)) {
+      classifica.push(perdente);
+      giàPiazzati.add(perdente.codiceFis);
+    }
+  });
+
+  // Tabelloni precedenti (tab8, tab16, tab32, …)
+  const tabelloni = Object.keys(fasi)
+    .filter((k) => k.startsWith("tab"))
+    .map((k) => parseInt(k.replace("tab", "")))
+    .filter((n) => n >= 8)
+    .sort((a, b) => a - b); // dal più grande al più piccolo
+
+  tabelloni.forEach((n) => {
+    const matches = fasi[`tab${n}`] || [];
+    const perdenti = matches
+      .map((match) => {
+        const a1 = match.atleta1;
+        const a2 = match.atleta2;
+        if (!a1 || !a2 || match.risultato === "-" || match.risultato === "")
+          return null;
+        const p1 = parseInt(a1.risultato);
+        const p2 = parseInt(a2.risultato);
+        return p1 > p2 ? a2 : a1;
+      })
+      .filter(Boolean)
+      .filter((a) => !giàPiazzati.has(a.codiceFis))
+      .sort((a, b) => a.PosizioneProvv - b.PosizioneProvv);
+
+    classifica.push(...perdenti);
+    perdenti.forEach((a) => giàPiazzati.add(a.codiceFis));
+  });
+
+  // Eliminati nei gironi
+  const eliminatiGironi = classificaPostGironi
+    .filter((a) => !giàPiazzati.has(a.codiceFis))
+    .sort((a, b) => a.PosizioneProvv - b.PosizioneProvv)
+    .map((a) => ({
+      codiceFis: a.codiceFis,
+      cognome: a.cognome,
+      nome: a.nome,
+    }));
+  classifica.push(...eliminatiGironi);
+
+  // Output normalizzato
+  return classifica.map((a) => ({
+    codicefis: a.codiceFis,
+    cognome: a.cognome,
+    nome: a.nome,
+  }));
+};
+
+const renderClassificaFinale = (classifica) => {
+  console.log(classifica);
+  const classificaFinaleTabella = document.getElementById(
+    "classificaFinaleTabella"
+  );
+
+  // intestazione senza SOCIETA
+  const templateClassGir = `
+    <tr>
+      <th>POS</th>
+      <th>CODICE FIS</th>
+      <th>COGNOME</th>
+      <th>NOME</th>
+    </tr>`;
+
+  let html = templateClassGir;
+
+  classifica.forEach((element, index) => {
+    if (index == 3) {
+      html += `
+      <tr>
+        <td>${3}</td>
+        <td>${element.codicefis}</td>
+        <td>${element.cognome}</td>
+        <td>${element.nome}</td>
+      </tr>`;
+    } else {
+      html += `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${element.codicefis}</td>
+        <td>${element.cognome}</td>
+        <td>${element.nome}</td>
+      </tr>`;
+    }
+  });
+
+  classificaFinaleTabella.innerHTML = html;
+};
+//------------------------- FINE CLASSIFICA FINALE  ----------------------------------------
