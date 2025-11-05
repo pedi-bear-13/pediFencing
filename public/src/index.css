@@ -313,3 +313,56 @@ input[type="number"]:focus {
   color: var(--text-light);
   opacity: 0.8;
 }
+/* ---------------------------
+   Tabella personalizzata
+--------------------------- */
+.pedi-tabella {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: var(--bg-panel);
+  color: var(--text-light);
+  border: 2px solid var(--border-light);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 20px 10px rgba(255, 255, 255, 0.1);
+}
+
+/* Celle */
+.pedi-tabella th,
+.pedi-tabella td {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-light);
+  background-color: var(--bg-panel);
+  color: var(--text-light);
+  text-align: left;
+}
+
+/* Header */
+.pedi-tabella thead th {
+  background-color: var(--bg-panel);
+  color: var(--accent-rosa);
+  border-bottom: 2px solid var(--border-light);
+}
+
+/* Hover */
+.pedi-tabella tbody tr:hover {
+  background-color: rgba(219, 39, 119, 0.1);
+}
+
+/* Angoli arrotondati */
+.pedi-tabella thead tr:first-child th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.pedi-tabella thead tr:first-child th:last-child {
+  border-top-right-radius: 12px;
+}
+
+.pedi-tabella tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 12px;
+}
+
+.pedi-tabella tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 12px;
+}
