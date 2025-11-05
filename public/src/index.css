@@ -86,7 +86,16 @@ input[type="number"]:focus {
 /* ---------------------------
    Card e pannelli
 --------------------------- */
-.pedi-card,
+.pedi-card {
+  max-width: 400px;
+  background-color: #172554;
+  border-color: #f5d0fe;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 20px 10px rgba(255, 255, 255, 0.1);
+}
 .pedi-card-page {
   background-color: var(--bg-panel);
   border: 2px solid var(--border-light);
@@ -133,8 +142,8 @@ input[type="number"]:focus {
   max-width: 6%;
 }
 
-.pedi-immagine-menu {
-  max-width: 40%;
+.pedi-immagine {
+  max-width: 50%;
   height: auto;
   display: block;
   margin: 0 auto;
