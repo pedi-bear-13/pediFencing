@@ -83,6 +83,10 @@ input[type="number"]:focus {
   border: none;
 }
 
+.bottoni-page {
+  background-color: var(--bg-dark);
+  border: none;
+}
 /* ---------------------------
    Card e pannelli
 --------------------------- */
@@ -148,7 +152,6 @@ input[type="number"]:focus {
   display: block;
   margin: 0 auto;
 }
-
 /* ---------------------------
    Dropdown
 --------------------------- */

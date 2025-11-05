@@ -275,5 +275,29 @@ classificaGironi.onclick = () => {
     svolto;
 };
 
-eliminazioneDiretta.onclick = () => console.log("Non implementata");
-classificaFinale.onclick = () => console.log("Non implementata");
+eliminazioneDiretta.onclick = () => {
+  window.location.href =
+    "./eliminazioneDiretta.html?id=" +
+    idParamTorneo +
+    "&nomeTorneo=" +
+    idParam +
+    "&data=" +
+    dataParam +
+    "&svolto=" +
+    svolto;
+};
+
+/**
+ * Gestione button cambio pagina da classifica iniziale a classifica finale
+ */
+classificaFinale.onclick = () => {
+  window.location.href =
+    "./classificaFinale.html?id=" +
+    idParamTorneo +
+    "&nomeTorneo=" +
+    idParam +
+    "&data=" +
+    dataParam +
+    "&svolto=" +
+    svolto;
+};

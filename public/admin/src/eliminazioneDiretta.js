@@ -218,16 +218,29 @@ classificaGironi.onclick = () => {
     svolto;
 };
 
-/**
- * Gestione button cambio pagina da classifica iniziale alla pagina dell'eliminazione diretta
- */
 eliminazioneDiretta.onclick = () => {
-  console.log("Non implementata");
+  window.location.href =
+    "./eliminazioneDiretta.html?id=" +
+    idParamTorneo +
+    "&nomeTorneo=" +
+    idParam +
+    "&data=" +
+    dataParam +
+    "&svolto=" +
+    svolto;
 };
 
 /**
  * Gestione button cambio pagina da classifica iniziale a classifica finale
  */
 classificaFinale.onclick = () => {
-  console.log("Non implementata");
+  window.location.href =
+    "./classificaFinale.html?id=" +
+    idParamTorneo +
+    "&nomeTorneo=" +
+    idParam +
+    "&data=" +
+    dataParam +
+    "&svolto=" +
+    svolto;
 };
