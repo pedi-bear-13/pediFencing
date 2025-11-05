@@ -294,15 +294,15 @@ export const renderGironi = (
           // giocatoriDistribuiti è già un array di atleti del singolo girone
           let html = `
     <div class="col-auto">
-      <table class="table table-bordered text-white text-center pedi-tabella mt-5">
+          <table class="pedi-tabella mt-5">
         <thead>
           <tr>
-            <th>COGNOME</th>
-            <th>NOME</th>
-            <th>RANK</th>`;
+            <td>COGNOME</td>
+            <td>NOME</td>
+            <td>RANK</td>`;
           // intestazioni numeriche (colonne degli avversari)
           for (let i = 0; i < giocatoriDistribuiti.length; i++) {
-            html += `<th>${i + 1}</th>`;
+            html += `<td>${i + 1}</td>`;
           }
           html += `</tr></thead><tbody>`;
           // righe giocatori
@@ -442,7 +442,7 @@ const creaModalGironi = (girone, contatore, torneoStatus) => {
   let modal = `
    <div class="col-auto">
      <!-- Button trigger modal -->
-     <button data-bs-toggle="modal" data-bs-target="#girone${contatore}" class="bottoni-page" type="button" %disabled>
+     <button data-bs-toggle="modal" data-bs-target="#girone${contatore}" class="bottoni-page btn bottoni-rosa" type="button" %disabled>
        <img src="../edit.svg" class="pedi-icon" />
      </button>
    </div>
@@ -452,13 +452,13 @@ const creaModalGironi = (girone, contatore, torneoStatus) => {
        <div class="modal-content">
          <div class="modal-header">
            <h1 class="modal-title fs-5" id="exampleModalLabel">Girone ${contatore}</h1>
-           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+           <button type="button" class="btn-close pedi-icon" data-bs-dismiss="modal" aria-label="Close"></button>
          </div>
          <div class="modal-body">
            %CONTENUTO
          </div>
          <div class="modal-footer">
-           <button type="button" id="conferma${contatore}" class="btn btn-success conferma" data-bs-dismiss="modal">Modifica</button>
+           <button type="button" id="conferma${contatore}" class="btn bottoni-rosa" data-bs-dismiss="modal">Modifica</button>
          </div>
        </div>
      </div>
