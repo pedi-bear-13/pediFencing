@@ -28,10 +28,10 @@ const templateDivTornei = `
           <p class="badge text-wrap">%TITOLO</p>
         </div>
         <div class="col-auto"> 
-        <button class="bottoni-barra modifica" id="%COUNT" type="button">
+        <button class="bottoni-barra modifica btn bottoni-rosa" id="%COUNT" type="button">
           <img src="../edit.svg" class="pedi-icon" />
       </button>
-        <button class="bottoni-barra elimina" id="%COUNT" type="button">
+        <button class="bottoni-barra elimina btn bottoni-rosa" id="%COUNT" type="button">
           <img src="../bin.svg" class="pedi-icon" />
       </button></div>
       </div>
@@ -298,8 +298,7 @@ export const renderGironi = (
         <thead>
           <tr>
             <td>COGNOME</td>
-            <td>NOME</td>
-            <td>RANK</td>`;
+            <td>NOME</td>`;
           // intestazioni numeriche (colonne degli avversari)
           for (let i = 0; i < giocatoriDistribuiti.length; i++) {
             html += `<td>${i + 1}</td>`;
@@ -314,8 +313,7 @@ export const renderGironi = (
             html += `
     <tr>
       <td>${partecipante.Cognome}</td>
-      <td>${partecipante.Nome}</td>
-      <td>${partecipante.Ranking}</td>`;
+      <td>${partecipante.Nome}</td>`;
 
             giocatoriDistribuiti.forEach((altroPartecipante, indexAltro) => {
               if (index !== indexAltro) {
@@ -341,7 +339,7 @@ export const renderGironi = (
 
                 html += `<td>${risultato}</td>`;
               } else {
-                html += "<td></td>";
+                html += `<td class="cella-diagonale"></td>`;
               }
             });
 

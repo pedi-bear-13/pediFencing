@@ -156,7 +156,7 @@
             </h5>
             <button
               type="button"
-              class="btn-close"
+              class="btn-close pedi-icon"
               data-bs-dismiss="modal"
               aria-label="Chiudi"
             ></button>
@@ -165,11 +165,20 @@
             <form id="formRisultato" class="row g-3">
               <div class="col-12">
                 <label for="matchSelect" class="form-label">Assalto</label>
-                <select class="form-select" id="matchSelect" required></select>
+                <select
+                  class="form-select plebeo"
+                  id="matchSelect"
+                  required
+                ></select>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Atleta 1</label>
-                <input type="text" class="form-control" id="atleta1" disabled />
+                <input
+                  type="text"
+                  class="form-control plebeo"
+                  id="atleta1"
+                  disabled
+                />
               </div>
               <div class="col-md-6">
                 <label for="punteggio1" class="form-label">Punteggio</label>
@@ -200,13 +209,6 @@
             </form>
           </div>
           <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Annulla
-            </button>
             <button type="submit" class="btn btn-rosa" form="formRisultato">
               Conferma
             </button>
