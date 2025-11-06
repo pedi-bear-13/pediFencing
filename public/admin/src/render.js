@@ -252,7 +252,7 @@ function roundRobin(lunghezza) {
  */
 export function renderincontri(lista) {
   let rounds = roundRobin(lista.length);
-  let table = `<table class="table table-bordered text-white text-center pedi-tabella mt-5">`;
+  let table = `<table class="pedi-tabella-incontri text-center mt-5">`;
 
   rounds.forEach((round) => {
     round.forEach(([i1, i2]) => {
