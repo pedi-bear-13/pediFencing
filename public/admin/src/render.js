@@ -408,7 +408,6 @@ export const renderGironi = (
                 idTorneo,
                 "Girone"
               );
-              console.log(assalto);
               aggiornaAssalti(assalto).then(() => {
                 window.location.reload();
               });
@@ -550,61 +549,58 @@ export const creaClassificaGironi = (
     recuperaAssaltiGirone(idTorneo).then((assaltiGironi) => {
       data.classList.remove("d-none");
       spinner.classList.add("d-none");
-
       // ordina i partecipanti per ranking
       const partecipantiRedux = response.sort((a, b) => a.Ranking - b.Ranking);
 
       let countaGir = 0;
       const listaGir = [];
-      distribuisciGiocatori(numeroGir, partecipantiRedux).forEach(
-        (giocatoriDistribuiti) => {
-          const tot = {};
-          tot["girone"] = countaGir++;
-          const lista = [];
 
-          giocatoriDistribuiti.forEach((partecipante, index) => {
-            let obj = {};
-            obj["cognome"] = partecipante.Cognome;
-            obj["nome"] = partecipante.Nome;
-            obj["ranking"] = partecipante.Ranking;
-            obj["codiceFis"] = partecipante.CodiceFIS;
-            obj["assalti"] = [];
+      for (let i = 1; i <= numeroGir; i++) {
+        const atletiGirone = partecipantiRedux.filter(
+          (a) => Number(a.Girone) === i
+        );
+        const tot = { girone: i, atleti: [] };
 
-            giocatoriDistribuiti.forEach((altroPartecipante, indexAltro) => {
-              if (index !== indexAltro) {
-                // cerca assalto relativo a questa coppia
-                const assalto = assaltiGironi.find(
-                  (a) =>
-                    (a.IdAtleta1 === partecipante.CodiceFIS &&
-                      a.IdAtleta2 === altroPartecipante.CodiceFIS) ||
-                    (a.IdAtleta2 === partecipante.CodiceFIS &&
-                      a.IdAtleta1 === altroPartecipante.CodiceFIS)
-                );
+        atletiGirone.forEach((partecipante, index) => {
+          const obj = {
+            cognome: partecipante.Cognome,
+            nome: partecipante.Nome,
+            ranking: partecipante.Ranking,
+            codiceFis: partecipante.CodiceFIS,
+            assalti: [],
+          };
 
-                let punteggioTemp = "-";
-                if (assalto) {
-                  // separo risultato (es. "V-3", "V4-2")
-                  const [p1, p2] = assalto.Risultato.split("-");
+          atletiGirone.forEach((altroPartecipante, indexAltro) => {
+            if (index !== indexAltro) {
+              const assalto = assaltiGironi.find(
+                (a) =>
+                  (a.IdAtleta1 === partecipante.CodiceFIS &&
+                    a.IdAtleta2 === altroPartecipante.CodiceFIS) ||
+                  (a.IdAtleta2 === partecipante.CodiceFIS &&
+                    a.IdAtleta1 === altroPartecipante.CodiceFIS)
+              );
 
-                  if (assalto.IdAtleta1 === partecipante.CodiceFIS) {
-                    punteggioTemp = p1;
-                  } else if (assalto.IdAtleta2 === partecipante.CodiceFIS) {
-                    punteggioTemp = p2;
-                  }
+              let punteggioTemp = "-";
+              if (assalto) {
+                const [p1, p2] = assalto.Risultato.split("-");
+                if (assalto.IdAtleta1 === partecipante.CodiceFIS) {
+                  punteggioTemp = p1;
+                } else {
+                  punteggioTemp = p2;
                 }
-                obj.assalti.push(punteggioTemp);
-              } else {
-                obj.assalti.push(" ");
               }
-            });
-
-            lista.push(obj);
+              obj.assalti.push(punteggioTemp);
+            } else {
+              obj.assalti.push(" ");
+            }
           });
 
-          tot["atleti"] = lista;
-          listaGir.push(tot);
-        }
-      );
+          tot.atleti.push(obj);
+        });
+
+        listaGir.push(tot);
+      }
+
       // render della classifica finale
       renderClassificaGironi(
         riordinaLista(
@@ -935,9 +931,6 @@ export const renderEliminazioneDiretta = (
           fasi[tabName] = matches;
           dimensione = nextDimensione;
         }
-
-        console.log(fasi);
-        console.log(assaltiTabellone);
         // Genero HTML
         const htmlTabellone = generaHTMLTabellone(fasi);
 
@@ -1354,7 +1347,6 @@ const generaClassificaFinale = (fasi, classificaPostGironi) => {
 };
 
 const renderClassificaFinale = (classifica) => {
-  console.log(classifica);
   const classificaFinaleTabella = document.getElementById(
     "classificaFinaleTabella"
   );
