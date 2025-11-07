@@ -356,53 +356,67 @@ export const renderGironi = (
           tableGironi.innerHTML += html;
         }
       );
+      requestAnimationFrame(() => {
+        // Gestione click sui bottoni "conferma"
+        document.querySelectorAll(".conferma").forEach((button) => {
+          button.onclick = () => {
+            const nGirone = parseInt(button.id.replace("conferma", ""), 10);
 
-      // Gestione click sui bottoni "conferma"
-      document.querySelectorAll(".conferma").forEach((button) => {
-        button.onclick = () => {
-          const nGirone = parseInt(button.id.replace("conferma", ""), 10);
+            const atletaPrimo = document.getElementById(
+              `select-1 girone-${nGirone}`
+            ).value;
+            const atletaSecondo = document.getElementById(
+              `select-2 girone-${nGirone}`
+            ).value;
 
-          const punteggioPrimo = Number(
-            document.getElementById(`girone-${nGirone} atleta-1`).value
-          );
-          const punteggioSecondo = Number(
-            document.getElementById(`girone-${nGirone} atleta-2`).value
-          );
-          const atletaPrimo = document.getElementById(
-            `select-1 girone-${nGirone}`
-          ).value;
-          const atletaSecondo = document.getElementById(
-            `select-2 girone-${nGirone}`
-          ).value;
+            const punteggioPrimoRaw = document.getElementById(
+              `girone-${nGirone} atleta-1`
+            ).value;
+            const punteggioSecondoRaw = document.getElementById(
+              `girone-${nGirone} atleta-2`
+            ).value;
 
-          // Validazioni
-          const punteggiValidi =
-            !isNaN(punteggioPrimo) &&
-            !isNaN(punteggioSecondo) &&
-            punteggioPrimo >= 0 &&
-            punteggioPrimo <= 5 &&
-            punteggioSecondo >= 0 &&
-            punteggioSecondo <= 5 &&
-            punteggioPrimo !== punteggioSecondo;
+            const punteggioPrimo = Number(punteggioPrimoRaw);
+            const punteggioSecondo = Number(punteggioSecondoRaw);
 
-          if (punteggiValidi && atletaPrimo !== atletaSecondo) {
-            const assalto = checkPunteggi(
-              atletaPrimo,
-              punteggioPrimo,
-              atletaSecondo,
-              punteggioSecondo,
-              idTorneo,
-              "Girone"
-            );
-            aggiornaAssalti(assalto).then(() => {
-              window.location.reload();
-            });
-          } else {
-            alert("Errore nella compilazione");
-          }
+            const punteggioValido = (val) =>
+              val !== "" &&
+              !isNaN(val) &&
+              Number.isInteger(val) &&
+              val >= 0 &&
+              val <= 5;
 
-          resetFormGirone(nGirone);
-        };
+            const punteggiValidi =
+              punteggioValido(punteggioPrimo) &&
+              punteggioValido(punteggioSecondo) &&
+              punteggioPrimo !== punteggioSecondo;
+
+            const atletiDiversi = atletaPrimo !== atletaSecondo;
+
+            if (!punteggiValidi) {
+              alert(
+                "Inserisci punteggi interi tra 0 e 5 e assicurati che ci sia un vincitore."
+              );
+            } else if (!atletiDiversi) {
+              alert("Non puoi inserire lo stesso atleta due volte.");
+            } else {
+              const assalto = checkPunteggi(
+                atletaPrimo,
+                punteggioPrimo,
+                atletaSecondo,
+                punteggioSecondo,
+                idTorneo,
+                "Girone"
+              );
+              console.log(assalto);
+              aggiornaAssalti(assalto).then(() => {
+                window.location.reload();
+              });
+            }
+
+            resetFormGirone(nGirone);
+          };
+        });
       });
     });
   });
@@ -418,22 +432,31 @@ function resetFormGirone(nGirone) {
 
 // Composizione oggetto assalto
 function checkPunteggi(atleta1, punteggio1, atleta2, punteggio2, idT, tipo) {
-  const obj = {
-    fisUno: atleta1,
-    fisDue: atleta2,
-    idTorneo: idT,
-    tipo: tipo,
-  };
+  let vincitore, punteggioV, sconfitto, punteggioS;
 
   if (punteggio1 > punteggio2) {
-    obj.atleta1 = punteggio1 === 5 ? "V" : "V" + punteggio1;
-    obj.atleta2 = punteggio2;
+    vincitore = atleta1;
+    punteggioV = punteggio1;
+    sconfitto = atleta2;
+    punteggioS = punteggio2;
   } else {
-    obj.atleta1 = punteggio1;
-    obj.atleta2 = punteggio2 === 5 ? "V" : "V" + punteggio2;
+    vincitore = atleta2;
+    punteggioV = punteggio2;
+    sconfitto = atleta1;
+    punteggioS = punteggio1;
   }
 
-  return obj;
+  const risultato = `${
+    punteggioV === 5 ? "V" : "V" + punteggioV
+  }-${punteggioS}`;
+
+  return {
+    fisUno: vincitore,
+    fisDue: sconfitto,
+    idTorneo: idT,
+    tipo: tipo,
+    Risultato: risultato,
+  };
 }
 
 const creaModalGironi = (girone, contatore, torneoStatus) => {
@@ -456,7 +479,8 @@ const creaModalGironi = (girone, contatore, torneoStatus) => {
            %CONTENUTO
          </div>
          <div class="modal-footer">
-           <button type="button" id="conferma${contatore}" class="btn bottoni-rosa" data-bs-dismiss="modal">Modifica</button>
+           <button type="button" id="conferma${contatore}" class="btn bottoni-rosa conferma" data-bs-dismiss="modal">Modifica</button>
+
          </div>
        </div>
      </div>

@@ -2,8 +2,8 @@ const fs = require("fs");
 const mysql = require("mysql2/promise");
 
 /**
- * Aggiorna o inserisce un assalto di un girone
- * @param {*} assaltoObj - { CodiceFISAtleta1, CodiceFISAtleta2, Risultato, Tipo, idTorneo }
+ * Aggiorna o inserisce un assalto (girone o eliminazione diretta)
+ * @param {*} assaltoObj - { fisUno, fisDue, Risultato, tipo, idTorneo }
  * @returns { result: "ok" }
  */
 const aggiornaAssalti = async (assaltoObj) => {
@@ -16,27 +16,35 @@ const aggiornaAssalti = async (assaltoObj) => {
       password: conf.password,
       database: conf.database,
     });
-    // Verifica se l'assalto esiste
+
+    // Cerca assalto esistente in entrambi gli ordini
     const [rows] = await connection.execute(
-      `SELECT Id FROM assalto 
-       WHERE IdAtleta1 = ? AND IdAtleta2 = ? 
+      `SELECT Id, IdAtleta1, IdAtleta2 FROM assalto 
+       WHERE ((IdAtleta1 = ? AND IdAtleta2 = ?) OR (IdAtleta1 = ? AND IdAtleta2 = ?))
          AND Tipo = ? AND idTorneo = ?`,
       [
         assaltoObj.fisUno,
         assaltoObj.fisDue,
+        assaltoObj.fisDue,
+        assaltoObj.fisUno,
         assaltoObj.tipo,
         assaltoObj.idTorneo,
       ]
     );
 
     if (rows.length > 0) {
-      // Esiste, aggiorna
+      const assaltoId = rows[0].Id;
+
+      // Mantieni il risultato così com'è, ma garantisci che il vincitore sia IdAtleta1
+      const vincitore = assaltoObj.fisUno;
+      const sconfitto = assaltoObj.fisDue;
+
       await connection.execute(
-        `UPDATE assalto SET Risultato = ? WHERE Id = ?`,
-        [assaltoObj.Risultato, rows[0].Id]
+        `UPDATE assalto SET IdAtleta1 = ?, IdAtleta2 = ?, Risultato = ? WHERE Id = ?`,
+        [vincitore, sconfitto, assaltoObj.Risultato, assaltoId]
       );
     } else {
-      // Non esiste, inserisci nuovo record
+      // Inserisci nuovo assalto
       await connection.execute(
         `INSERT INTO assalto 
         (IdAtleta1, IdAtleta2, Risultato, Tipo, IdTorneo)
