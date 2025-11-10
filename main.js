@@ -102,10 +102,10 @@ const recuperaGironi = require("./services/recuperaGironi");
     const password = request.headers.password;
     await checkLogin(username, password)
       .then(() => {
-        const { nome, data } = request.body;
-        if (nome && data && nome !== "" && data !== "") {
+        const { id } = request.body;
+        if (id && id !== "") {
           try {
-            const result = eliminaTorneo(nome, data);
+            const result = eliminaTorneo(id);
             response.json(result);
           } catch (error) {
             response.status(500).json({ result: error.message });

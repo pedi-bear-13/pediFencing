@@ -139,7 +139,7 @@ export const renderTornei = () => {
             const id = event.currentTarget.id.split("_");
             spinner.classList.remove("d-none");
             data.classList.add("d-none");
-            eliminaTorneo({ nome: id[1], data: id[2] }).then((response) => {
+            eliminaTorneo({ id: id[0] }).then((response) => {
               window.location.reload();
             });
           });
