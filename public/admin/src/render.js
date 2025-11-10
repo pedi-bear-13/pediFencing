@@ -109,15 +109,13 @@ export const renderTornei = () => {
                     "_" +
                     svolto
                 )
-                .replace(
-                  "%DISABLED",
-                  tornei[0].Stato === "Iniziale" ? "" : "disabled"
-                )
+                .replace("%DISABLED", svolto === "Iniziale" ? "" : "disabled")
             );
             if (i % 2 === 0) {
               row += `</div><div class="row mt-2">`;
             }
           }
+
           row += `</div>`;
         }
         torneiTable.innerHTML = row;

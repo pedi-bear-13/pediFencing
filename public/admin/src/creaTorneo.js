@@ -1,4 +1,5 @@
 import { creaTorneo, loginControllo } from "./cache.js";
+
 const data = document.getElementById("dataTorneo");
 const nome = document.getElementById("nome");
 const pel = document.getElementById("pel");
@@ -16,8 +17,25 @@ logout.onclick = () => {
 };
 
 invia.onclick = () => {
+  let valid = true;
+
+  [data, nome, pel, ngir].forEach((field) => {
+    if (!field.value || field.value.trim() === "") {
+      field.classList.add("border-danger");
+      valid = false;
+    } else {
+      field.classList.remove("border-danger");
+    }
+  });
+
+  if (!valid) {
+    messaggio.innerText = "Compila tutti i campi obbligatori.";
+    return; // interrompe se non validi
+  }
+
   spinner.classList.remove("d-none");
   datas.classList.add("d-none");
+
   creaTorneo({
     data: data.value,
     nome: nome.value,
@@ -27,26 +45,13 @@ invia.onclick = () => {
     messaggio.innerText = response;
     spinner.classList.add("d-none");
     datas.classList.remove("d-none");
-    if (response === "ok") {
-      if (data.classList.contains("border-danger")) {
-        data.classList.remove("border-danger");
-        nome.classList.remove("border-danger");
-        pel.classList.remove("border-danger");
-        ngir.classList.remove("border-danger");
-      }
-      data.value = nome.value = pel.value = ngir.value = "";
-    } else {
-      data.classList.add("border-danger");
-      nome.classList.add("border-danger");
-      pel.classList.add("border-danger");
-      ngir.classList.add("border-danger");
-    }
+    // reset campi
+    data.value = "";
+    nome.value = "";
+    pel.value = "";
+    ngir.value = "";
+    window.location.href = "./"; // redirect solo se ok
   });
-  document.getElementById("data").value = "";
-  document.getElementById("nome").value = "";
-  document.getElementById("pel").value = "";
-  document.getElementById("ngir").value = "";
-  window.location.href = "./";
 };
 
 window.onload = () => {
