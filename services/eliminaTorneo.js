@@ -7,6 +7,7 @@ const mysql = require("mysql2/promise");
  * @returns
  */
 const eliminaTorneo = async (nomeTorneo, data) => {
+  console.log("Eliminazione torneo: " + nomeTorneo + " del giorno: " + data);
   try {
     const sql =
       "DELETE FROM torneo WHERE Nome = '" +

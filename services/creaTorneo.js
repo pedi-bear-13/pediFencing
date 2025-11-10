@@ -25,7 +25,7 @@ const creaTorneo = async (data, nome, pel, ngir) => {
       INSERT INTO torneo (Nome, Stato, Giorno, PercentualeEliminati, NumeroGironi)
       VALUES (?, ?, ?, ?, ?)
     `;
-    await connection.execute(sqlInsert, [nome, true, data, pel, ngir]);
+    await connection.execute(sqlInsert, [nome, "Iniziale", data, pel, ngir]);
 
     return { result: "Torneo creato con successo" };
   } catch (error) {

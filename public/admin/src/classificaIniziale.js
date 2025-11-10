@@ -15,6 +15,7 @@ const classificaIniziale = document.getElementById("classificaIniziale");
 const classificaGironi = document.getElementById("classificaGironi");
 const classificaFinale = document.getElementById("classificaFinale");
 const logout = document.getElementById("logout");
+const assegnaPartecipante = document.getElementById("assegnaPartecipante");
 
 logout.onclick = () => {
   sessionStorage.removeItem("username");
@@ -35,10 +36,11 @@ window.onload = () => {
 /**
  * Gestione per aggiungere partecipanti al torneo
  */
-assegnaPartecipante.onclick = () => {
-  if (svolto == 0) {
-    assegnaPartecipante.classList.add("disabled");
-  } else {
+if (svolto !== "Iniziale") {
+  // disabilita il bottone se lo stato non è Iniziale
+  assegnaPartecipante.setAttribute("disabled", "true");
+} else {
+  assegnaPartecipante.onclick = () => {
     window.location.href =
       "./assegnaTorneo.html?id=" +
       idParamTorneo +
@@ -48,8 +50,8 @@ assegnaPartecipante.onclick = () => {
       dataParam +
       "&svolto=" +
       svolto;
-  }
-};
+  };
+}
 
 /**
  * Gestione button cambio pagina da classifica iniziale a se stessa

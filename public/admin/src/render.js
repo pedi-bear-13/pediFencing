@@ -4,7 +4,7 @@ import {
   recuperaAtleta,
   assegnaGironi,
   recuperaAssaltiTabellone,
-  //recuperaStorico,
+  eliminaTorneo,
   aggiornaAssalti,
   recuperaAssaltiGirone,
 } from "./cache.js";
@@ -22,22 +22,21 @@ const templateDivTornei = `
     <div class="card-body">
       <div class="row justify-content-between fs-3 text-white">
         <div class="col-auto">
-          <svg height="40" width="40">
-            <circle cx="20" cy="20" r="20" fill="%STATUS" />
-          </svg>
           <p class="badge text-wrap">%TITOLO</p>
         </div>
         <div class="col-auto"> 
-        <button class="bottoni-barra modifica btn bottoni-rosa" id="%COUNT" type="button">
-          <img src="../edit.svg" class="pedi-icon" />
-      </button>
-        <button class="bottoni-barra elimina btn bottoni-rosa" id="%COUNT" type="button">
-          <img src="../bin.svg" class="pedi-icon" />
-      </button></div>
+          <button class="bottoni-barra modifica btn bottoni-rosa" id="%COUNT" type="button" %DISABLED>
+            <img src="../edit.svg" class="pedi-icon" />
+          </button>
+          <button class="bottoni-barra elimina btn bottoni-rosa" id="%COUNT" type="button">
+            <img src="../bin.svg" class="pedi-icon" />
+          </button>
+        </div>
       </div>
     </div>
   </div>
 `;
+
 /**
  * Funzione per il rendering in finestra dei tornei
  */
@@ -74,8 +73,10 @@ export const renderTornei = () => {
                 "_" +
                 tornei[0].Stato
             )
-            .replace("%STATUS", tornei[0].Stato ? "green" : "red")
-            .replace("%disabled", tornei[0].Stato ? "disabled" : " ")
+            .replace(
+              "%DISABLED",
+              tornei[0].Stato === "Iniziale" ? "" : "disabled"
+            )
         );
 
         if (tornei.length > 1) {
@@ -108,8 +109,10 @@ export const renderTornei = () => {
                     "_" +
                     svolto
                 )
-                .replace("%STATUS", svolto ? "green" : "red")
-                .replace("%disabled", svolto ? "disabled" : " ")
+                .replace(
+                  "%DISABLED",
+                  tornei[0].Stato === "Iniziale" ? "" : "disabled"
+                )
             );
             if (i % 2 === 0) {
               row += `</div><div class="row mt-2">`;
@@ -487,7 +490,7 @@ const creaModalGironi = (girone, contatore, torneoStatus) => {
   `;
 
   // gestione bottone disabilitato
-  if (torneoStatus == 0) {
+  if (torneoStatus !== "Gironi") {
     modal = modal.replace("%disabled", "disabled");
   } else {
     modal = modal.replace("%disabled", "");
