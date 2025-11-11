@@ -464,3 +464,11 @@ input.plebeo:disabled {
   border: 2px solid var(--border-light) !important;
   opacity: 1; /* evita che il testo appaia sbiadito */
 }
+
+/* ---------------------------
+   Footer personalizzato
+--------------------------- */
+.footer {
+  background-color: var(--bg-dark); /* sfondo scuro coerente */
+  border-top: 2px solid var(--border-light); /* bordo rosa come la navbar */
+}
