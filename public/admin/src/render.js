@@ -842,13 +842,17 @@ export const renderEliminazioneDiretta = (
           }
         );
 
-        let primoTabellone = generaAccoppiamenti(
-          riordinaLista(
-            creaClassGir(listaGir, creaMatrici(listaGir)),
-            percentualeElim
-          ),
-          assaltiTabellone
+        const classificaCompleta = riordinaLista(
+          creaClassGir(listaGir, creaMatrici(listaGir)),
+          percentualeElim
         );
+
+        //filtro solo i qualificati
+        const qualificati = classificaCompleta.filter(
+          (a) => a.stato === "Qualificato"
+        );
+
+        let primoTabellone = generaAccoppiamenti(qualificati, assaltiTabellone);
 
         // Creo l'oggetto fasi
         const fasi = {};
@@ -1174,13 +1178,17 @@ export const creaClassificaFinale = (
           percentualeElim
         );
 
-        let primoTabellone = generaAccoppiamenti(
-          riordinaLista(
-            creaClassGir(listaGir, creaMatrici(listaGir)),
-            percentualeElim
-          ),
-          assaltiTabellone
+        const classificaCompleta = riordinaLista(
+          creaClassGir(listaGir, creaMatrici(listaGir)),
+          percentualeElim
         );
+
+        //filtro solo i qualificati
+        const qualificati = classificaCompleta.filter(
+          (a) => a.stato === "Qualificato"
+        );
+
+        let primoTabellone = generaAccoppiamenti(qualificati, assaltiTabellone);
 
         // Creo l'oggetto fasi
         const fasi = {};
