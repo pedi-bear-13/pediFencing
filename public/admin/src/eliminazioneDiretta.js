@@ -3,6 +3,7 @@ import {
   loginControllo,
   aggiornaAssalti,
   recuperaAtleta,
+  modificaStato,
 } from "./cache.js";
 import { renderEliminazioneDiretta } from "./render.js";
 //Lettura url
@@ -164,6 +165,14 @@ formRisultato.addEventListener("submit", async (e) => {
       tipo: tipoTabellone,
       idTorneo: idParamTorneo,
     });
+
+    //aggiorna stato torneo solo se non è già Dirette
+    if (svolto !== "Dirette") {
+      await modificaStato({ id: idParamTorneo, stato: "Dirette" });
+      // aggiorna URL
+      url.searchParams.set("svolto", "Dirette");
+      window.history.replaceState({}, "", url);
+    }
 
     modal.hide();
     window.location.reload();
