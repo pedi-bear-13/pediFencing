@@ -21,7 +21,7 @@ const recuperaAssaltiGirone = require("./services/recuperaAssaltiGirone.js");
 const recuperaAssaltiTabellone = require("./services/recuperaAssaltiTabellone.js");
 const assegnaGironi = require("./services/assegnaGironi");
 const recuperaGironi = require("./services/recuperaGironi");
-
+const modificaStato = require("./services/modificaStato.js");
 (() => {
   //gestione cors
   const corsOptions = {
@@ -344,6 +344,30 @@ const recuperaGironi = require("./services/recuperaGironi");
           ngir !== ""
         ) {
           const res = await modificaTorneo(id, data, nome, pel, ngir);
+          response.json(res);
+        } else {
+          response
+            .status(400)
+            .json({ result: "Elementi non completi o non validi" });
+        }
+      })
+      .catch(() => {
+        response.status(401).json({ result: "Unauthorized" });
+      });
+  });
+
+  /**
+   * Servizio per modificare stato del torneo in corso
+   */
+  app.post("/scherma/modificaStato", async (request, response) => {
+    const username = request.headers.username;
+    const password = request.headers.password;
+
+    await checkLogin(username, password)
+      .then(async () => {
+        const { id, stato } = request.body;
+        if (id && stato && id !== "" && stato !== "") {
+          const res = await modificaStato(id, stato);
           response.json(res);
         } else {
           response

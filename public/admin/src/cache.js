@@ -109,6 +109,25 @@ export const modificaTorneo = (dizionario) => {
   });
 };
 
+export const modificaStato = (dizionario) => {
+  return new Promise((resolve, reject) => {
+    fetch("/scherma/modificaStato", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        username: sessionStorage.getItem("username"),
+        password: sessionStorage.getItem("password"),
+      },
+      body: JSON.stringify(dizionario),
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        resolve(response.result);
+      })
+      .catch((error) => reject(error));
+  });
+};
+
 export const recuperaFasi = (dizionario) => {
   return new Promise((resolve, reject) => {
     fetch("/scherma/selectFasi", {

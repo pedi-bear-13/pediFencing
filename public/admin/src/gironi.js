@@ -1,6 +1,11 @@
 //Import moduli
 import { renderGironi } from "./render.js";
-import { recuperaTornei, loginControllo, recuperaGironi } from "./cache.js";
+import {
+  recuperaTornei,
+  loginControllo,
+  recuperaGironi,
+  modificaStato,
+} from "./cache.js";
 
 // Lettura URL
 const url = new URL(window.location.href);
@@ -72,6 +77,9 @@ window.onload = () => {
                 controlloGironi,
                 []
               );
+              modificaStato({ id: idParamTorneo, stato: "Gironi" }).then(() => {
+                window.location.reload();
+              });
             };
 
             document.getElementById("modalManuale").onclick = () => {
@@ -218,11 +226,11 @@ const mostraManuale = (torneo, listaGironi) => {
       });
     });
 
-    // Trasforma in array di array per gironi ordinati
     const gironiFinali = [];
     for (let i = 0; i < numeroGironi; i++) {
       gironiFinali[i] = assegnazioniPiatte.filter((a) => a.Girone === i + 1);
     }
+
     renderGironi(
       idParam,
       dataParam,
@@ -232,7 +240,9 @@ const mostraManuale = (torneo, listaGironi) => {
       true,
       gironiFinali
     );
-    window.location.reload();
+    modificaStato({ id: idParamTorneo, stato: "Gironi" }).then(() => {
+      window.location.reload();
+    });
   };
 };
 
