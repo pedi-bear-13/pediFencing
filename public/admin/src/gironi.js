@@ -78,6 +78,8 @@ window.onload = () => {
                 []
               );
               modificaStato({ id: idParamTorneo, stato: "Gironi" }).then(() => {
+                url.searchParams.set("svolto", "Gironi");
+                window.history.replaceState({}, "", url);
                 window.location.reload();
               });
             };
@@ -241,6 +243,8 @@ const mostraManuale = (torneo, listaGironi) => {
       gironiFinali
     );
     modificaStato({ id: idParamTorneo, stato: "Gironi" }).then(() => {
+      url.searchParams.set("svolto", "Gironi");
+      window.history.replaceState({}, "", url);
       window.location.reload();
     });
   };
